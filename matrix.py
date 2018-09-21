@@ -1,11 +1,10 @@
 #the original matrix rain
 from random import choice
 from time import sleep
-import re, sys
+import re, sys, fire, pdb
 from os import get_terminal_size, system as sy, name
 from string import ascii_lowercase as string
 from colored import fg, attr
-import fire
 
 itens = list(string)
 #itens = [chr(i) for i in range(0x30a1, 0x30ff + 1)] # katakana characters
@@ -20,17 +19,19 @@ class Architect:
     def __init__(self, recomeco = False):
         if not recomeco:
             print(fg('green'))
-            self.linhas_matrix = []
             self.range_len_itens = range(len(itens))
         print('\n'*100)
+        self.linhas_matrix = []
         self.trava = False
         self.colunas, self.linhas = map(int,
             re.findall(r'\d+', str(get_terminal_size())))
         for a in range(self.linhas):
             self.linhas_matrix.append(' '*self.colunas)
         self.distancia_colunas = set(range(self.colunas))
-        self.distancia_linhas = list(range(24))
+        self.distancia_intervalos = list(range(24))
         self.colunas_intervalos = []
+        self.stop_rain = False
+        self.gerar_linhas()
 
     def sortear_colunas_intervalo(self):
         """
@@ -39,10 +40,10 @@ class Architect:
         """
         self.colunas_intervalos = [[a[0], a[1]+1, a[2]+1]
             for a in self.colunas_intervalos]
-        if not self.trava:
+        if not self.trava and not self.stop_rain:
             coluna = choice(list(self.distancia_colunas))
             intervalo_final = 0
-            intervalo_inicial = -choice(self.distancia_linhas)
+            intervalo_inicial = -choice(self.distancia_intervalos)
             self.colunas_intervalos.append([coluna, intervalo_inicial,
                 intervalo_final])
             self.colunas_intervalos.sort()
@@ -77,6 +78,9 @@ class Architect:
                 'white') + itens[choice(self.range_len_itens)] + fg('green')
         return ''.join(string)
 
+    def rastro(self, texto: str):
+        pass
+
     def filtro_zero(self, x):
         if x < 0:
             return 0
@@ -84,20 +88,18 @@ class Architect:
             return x
 
     def rain(self):
-        try:
-            while True:
-                display = [str(self.colunas), str(self.linhas)]
-                while display == re.findall(
-                r'\d+', str(get_terminal_size())):
-                    self.gerar_linhas()
-                    sleep(0.1)
-                    for a in list(enumerate(self.linhas_matrix)):
-                        print(a[1])
-                self.__init__(True)
-                sleep(0.26)
-        except KeyboardInterrupt:
-            print('\n'*50)
-            texto_efeito_pausa(attr(0) + '\ndesconectado.')
+        while True:
+            display = [str(self.colunas), str(self.linhas)]
+            displayAtual = lambda : re.findall(r'\d+', str(get_terminal_size()))
+            while display == displayAtual() and self.colunas_intervalos:
+                for a in list(enumerate(self.linhas_matrix)):
+                    print(a[1])
+                self.gerar_linhas()
+                sleep(0.1)
+            if self.stop_rain:
+                break
+            self.__init__(True)
+            sleep(0.26)
 
 
 def texto_efeito_pausa(texto: str, segundos: float = 0.1):
@@ -111,7 +113,14 @@ def texto_efeito_pausa(texto: str, segundos: float = 0.1):
 def main():
     texto_efeito_pausa('Conectando a matrix...')
     sleep(1)
-    Architect().rain()
+    try:
+        matrix = Architect()
+        matrix.rain()
+    except KeyboardInterrupt:
+        #print('\n'*50)
+        matrix.stop_rain = True
+        matrix.rain()
+        texto_efeito_pausa(attr(0) + '\ndesconectado.')
 
 
 if __name__ == '__main__':
