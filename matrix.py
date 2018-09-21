@@ -5,6 +5,7 @@ import re, sys
 from os import get_terminal_size, system as sy, name
 from string import ascii_lowercase as string
 from colored import fg, attr
+import fire
 
 itens = list(string)
 #itens = [chr(i) for i in range(0x30a1, 0x30ff + 1)] # katakana characters
@@ -59,6 +60,9 @@ class Architect:
 
     def refazer_strings(self, string: str, nlinha: int):
         # coluna_intervalo, formado por colunas[0], intervalos[1,2]
+        if fg('white') in string:
+            string = string.replace(fg('white'), '')
+            string = string.replace(fg('green'), '')
         string = list(string)
         for a in self.colunas_intervalos:
             if a[1] > self.linhas:
@@ -69,7 +73,8 @@ class Architect:
                 a[2]) and string[a[0]] != ' ':
                 string[a[0]] = ' '
             elif nlinha in range(a[1], a[2]) and string[a[0]] == ' ':
-                string[a[0]] = itens[choice(self.range_len_itens)]  #colored cor branca aqui
+                string[a[0]] = fg(
+                'white') + itens[choice(self.range_len_itens)] + fg('green')
         return ''.join(string)
 
     def filtro_zero(self, x):
