@@ -33,15 +33,19 @@ class Architect:
         self.stop_rain = False
         self.gerar_linhas()
 
-    def sortear_colunas_intervalo(self):
+    def sortear_colunas_intervalo(self, intervalo: list = False):
         """
         Função que sorteia quais colunas serão colocadas na tela, com intervalos
         de distância da coluna que será exibida.
+        Intervalo recebe uma lista com Início e Fim da palavra.
         """
         self.colunas_intervalos = [[a[0], a[1]+1, a[2]+1]
             for a in self.colunas_intervalos]
         if not self.trava and not self.stop_rain:
-            coluna = choice(list(self.distancia_colunas))
+            if intervalo:
+                choice(list(range(*intervalo)))
+            else:
+                coluna = choice(list(self.distancia_colunas))
             intervalo_final = 0
             intervalo_inicial = -choice(self.distancia_intervalos)
             self.colunas_intervalos.append([coluna, intervalo_inicial,
@@ -53,8 +57,8 @@ class Architect:
         else:
             self.trava = False
 
-    def gerar_linhas(self):
-        self.sortear_colunas_intervalo()
+    def gerar_linhas(self, intervalo = False):
+        self.sortear_colunas_intervalo(intervalo)
         for linha in list(enumerate(self.linhas_matrix)):
             self.linhas_matrix[linha[0]] = self.refazer_strings(
                 linha[1], linha[0])
@@ -62,8 +66,7 @@ class Architect:
     def refazer_strings(self, string: str, nlinha: int):
         # coluna_intervalo, formado por colunas[0], intervalos[1,2]
         if fg('white') in string:
-            string = string.replace(fg('white'), '')
-            string = string.replace(fg('green'), '')
+            string = string.replace(fg('white'), '').replace(fg('green'), '')
         string = list(string)
         for a in self.colunas_intervalos:
             if a[1] > self.linhas:
@@ -79,7 +82,9 @@ class Architect:
         return ''.join(string)
 
     def rastro(self, texto: str):
-        pass
+        for a in texto.split():
+            for b in a:
+                self.gerar_linhas([0, len(a)-1, texto]) #put the interval here
 
     def filtro_zero(self, x):
         if x < 0:
@@ -87,11 +92,13 @@ class Architect:
         else:
             return x
 
+    def displayAtual(self):
+        return re.findall(r'\d+', str(get_terminal_size()))
+
     def rain(self):
         while True:
             display = [str(self.colunas), str(self.linhas)]
-            displayAtual = lambda : re.findall(r'\d+', str(get_terminal_size()))
-            while display == displayAtual() and self.colunas_intervalos:
+            while display == self.displayAtual() and self.colunas_intervalos:
                 for a in list(enumerate(self.linhas_matrix)):
                     print(a[1])
                 self.gerar_linhas()
