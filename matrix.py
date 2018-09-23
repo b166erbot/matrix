@@ -1,8 +1,8 @@
 #the original matrix rain
 from random import choice
 from time import sleep
-import re, sys, fire, pdb
-from os import get_terminal_size, system as sy, name
+import re, sys, fire
+from os import get_terminal_size
 from string import ascii_lowercase as string
 from colored import fg, attr
 
@@ -20,88 +20,133 @@ class Architect:
         if not recomeco:
             print(fg('green'))
             self.range_len_itens = range(len(itens))
-        print('\n'*100)
-        self.linhas_matrix = []
-        self.trava = False
+        print('\n'*30)
         self.colunas, self.linhas = map(int,
             re.findall(r'\d+', str(get_terminal_size())))
+        self.minCol = int(self.colunas/5)
+        self.maxCol = int(self.colunas/3)
+        self.linhas_matrix, self.colunas_intervalos = [], []
         for a in range(self.linhas):
             self.linhas_matrix.append(' '*self.colunas)
-        self.distancia_colunas = set(range(self.colunas))
-        self.distancia_intervalos = list(range(24))
-        self.colunas_intervalos = []
+        self.trava = False
         self.stop_rain = False
+        self.distancia_colunas = list(range(self.colunas))
+        self.distancia_intervalos = list(range(24))
         self.gerar_linhas()
 
-    def sortear_colunas_intervalo(self, intervalo: list = False):
+    def sortear_colunas_intervalo(self, rastro: list = False) -> list:
         """
         Função que sorteia quais colunas serão colocadas na tela, com intervalos
         de distância da coluna que será exibida.
-        Intervalo recebe uma lista com Início e Fim da palavra.
         """
-        self.colunas_intervalos = [[a[0], a[1]+1, a[2]+1]
-            for a in self.colunas_intervalos]
+        coluna = False
+        sortear = False
+        contagem = len(self.colunas_intervalos)
         if not self.trava and not self.stop_rain:
-            if intervalo:
-                choice(list(range(*intervalo)))
+            if contagem > self.minCol:
+                sortear = True
+            if rastro:
+                coluna = rastro[1]
             else:
-                coluna = choice(list(self.distancia_colunas))
+                if sortear:
+                    if choice([0, 1]):
+                        coluna = choice(self.distancia_colunas)
+                else:
+                    coluna = choice(self.distancia_colunas)
             intervalo_final = 0
             intervalo_inicial = -choice(self.distancia_intervalos)
-            self.colunas_intervalos.append([coluna, intervalo_inicial,
-                intervalo_final])
-            self.colunas_intervalos.sort()
-            self.distancia_colunas -= {coluna}
-        if len(self.colunas_intervalos) >= int(self.colunas / 3):
-            self.trava = True
-        else:
-            self.trava = False
+            return coluna, [coluna, intervalo_inicial, intervalo_final]
+        return []
 
-    def gerar_linhas(self, intervalo = False):
-        self.sortear_colunas_intervalo(intervalo)
+    def gerar_linhas(self, rastro: list = False):
+        self.colunas_intervalos = [[a[0], a[1]+1, a[2]+1]
+            for a in self.colunas_intervalos]
+        self.add_remove_colunas(*self.sortear_colunas_intervalo(rastro))
+        self.trava = self.des_travar()
         for linha in list(enumerate(self.linhas_matrix)):
-            self.linhas_matrix[linha[0]] = self.refazer_strings(
-                linha[1], linha[0])
+            self.linhas_matrix[linha[0]] = self.refazer_strings(*linha, rastro)
 
-    def refazer_strings(self, string: str, nlinha: int):
+    def refazer_strings(
+    self, nlinha: int, string: str, rastro: str=False) -> str:
+        """
+        Função que refatora a string ordenando as palavras de acordo com o
+        intervalo de distância imposto e colore as letras de acordo com o filme
+        geradas no intervalo.
+        """
         # coluna_intervalo, formado por colunas[0], intervalos[1,2]
         if fg('white') in string:
             string = string.replace(fg('white'), '').replace(fg('green'), '')
         string = list(string)
         for a in self.colunas_intervalos:
             if a[1] > self.linhas:
-                self.distancia_colunas.add(self.colunas_intervalos.pop(
-                self.colunas_intervalos.index(a))[0])
+                self.add_remove_colunas(a)
             intervalo_inicial = self.filtro_zero(a[1])
-            if nlinha not in range(intervalo_inicial,
-                a[2]) and string[a[0]] != ' ':
+            condicao1 = nlinha not in range(intervalo_inicial, a[2])
+            if condicao1 and string[a[0]] != ' ':
                 string[a[0]] = ' '
-            elif nlinha in range(a[1], a[2]) and string[a[0]] == ' ':
-                string[a[0]] = fg(
-                'white') + itens[choice(self.range_len_itens)] + fg('green')
+            elif rastro and condicao1 and string[a[0]] == rastro[0]:
+                pass
+            elif nlinha in range(*a[1:]) and string[a[0]] == ' ':
+                if not rastro:
+                    letra = itens[choice(self.range_len_itens)]
+                else:
+                    letra = rastro[0]
+                string[a[0]] = fg('white') + letra + fg('green')
         return ''.join(string)
 
-    def rastro(self, texto: str):
-        for a in texto.split():
-            for b in a:
-                self.gerar_linhas([0, len(a)-1, texto]) #put the interval here
+    def rastro(self, texto: str) -> list:
+        #distancia com bug nos tamanhos
+        #não está mantendo o rastro, verificar
+        #rastro = palavra, coluna_correta
+        textoRecortado = [texto[a*80:(a+1)*80] for a in range(len(texto)//80+1)]
+        for recorte in textoRecortado:
+            texto = list(recorte[0])
+            for b in recorte[0]:
+                indice = choice(range(len(texto)))
+                letra = texto.pop(indice)
+                self.gerar_linhas([letra, indice])
+
+    def des_travar(self):
+        if len(self.colunas_intervalos) >= self.maxCol:
+            return True
+        return False
+
+    def imprimir_na_tela(self): #vai receber mais algo como argumento
+        pass
 
     def filtro_zero(self, x):
         if x < 0:
             return 0
-        else:
-            return x
+        return x
 
     def displayAtual(self):
         return re.findall(r'\d+', str(get_terminal_size()))
 
-    def rain(self):
+    def add_remove_colunas(self, x=False, lista=False):
+        """
+        Função que adiciona ou remove colunas que serão exibidas na tela.
+        """
+        if x:
+            if lista:
+                #print(x)
+                self.distancia_colunas.remove(x)
+                self.colunas_intervalos.append(lista)
+                self.colunas_intervalos.sort()
+            else:
+                self.distancia_colunas.append(self.colunas_intervalos.pop(
+                self.colunas_intervalos.index(x))[0])
+
+
+    def rain(self, texto=False):
         while True:
             display = [str(self.colunas), str(self.linhas)]
             while display == self.displayAtual() and self.colunas_intervalos:
                 for a in list(enumerate(self.linhas_matrix)):
                     print(a[1])
-                self.gerar_linhas()
+                if not texto:
+                    self.gerar_linhas()
+                else:
+                    self.rastro(texto)
                 sleep(0.1)
             if self.stop_rain:
                 break
@@ -109,29 +154,33 @@ class Architect:
             sleep(0.26)
 
 
-def texto_efeito_pausa(texto: str, segundos: float = 0.1):
+def texto_efeito_pausa(texto: str):
     for a in texto:
         print(a, end='')
         sys.stdout.flush()
-        sleep(segundos)
+        sleep(0.04)
     print()
 
 
 def main():
     texto_efeito_pausa('Conectando a matrix...')
     sleep(1)
+    matrix = Architect()
     try:
-        matrix = Architect()
         matrix.rain()
     except KeyboardInterrupt:
-        #print('\n'*50)
         matrix.stop_rain = True
-        matrix.rain()
+        while matrix.colunas_intervalos:
+            try:
+                matrix.rain()
+            except:
+                pass
         texto_efeito_pausa(attr(0) + '\ndesconectado.')
-
 
 if __name__ == '__main__':
     main()
+
+#bug ao redimencionar a tela depois que eu aperto ctrl + c
 
 """eu sei que você está ai
 eu posso sentir a sua presença
