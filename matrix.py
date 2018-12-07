@@ -18,9 +18,13 @@ class Architect:
         for a in range(self.linhas):
             self.linhas_matrix.append(' ' * self.colunas)
         self.parar, self.trava = False, False
+        self._gerar_linhas()
 
     def _gerar_linhas(self):
-        # por em outro lugar a linha abaixo, self.trava
+        """
+        Método que gera novas colunas e intervalos de distâncias
+        para as linhas.
+        """
         self.trava = (True if len(self.local) >= self.maxCol
                       or self.parar else False)
         for a in self.local.copy():
@@ -34,8 +38,6 @@ class Architect:
                     nova_lista = list(filter(self._notIn, range(self.colunas)))
                     coluna = choice(nova_lista)
                     self.local[coluna] = [-choice(range(24)), 0]
-                    # se a localização no indice 0 for == 24, delete.
-                    # onde vai deletar é que eu não sei.
             elif len(self.local) >= 0:
                 # insirir colunas
                 nova_lista = list(filter(self._notIn, range(self.colunas)))
@@ -43,7 +45,10 @@ class Architect:
                 self.local[coluna] = [-choice(range(24)), 0]
 
     def _refazer_strings(self):
-        # bug, todas as caracteres estão mudando.
+        """
+        Método que refaz as strings deletando ou inserindo um novo caracter
+        conforme o intervalo de distância predefinido em self.local
+        """
         for linha in range(0, self.linhas):
             temp = self.linhas_matrix[linha].replace(fg('white'), '')
             self.linhas_matrix[linha] = temp.replace(fg('green'), '')
@@ -57,24 +62,49 @@ class Architect:
                     texto += ' '
             self.linhas_matrix[linha] = texto
 
+    def _reiniciar(self):
+        self.__init__(True)
+        sleep(0.26)
+        self.rain()
+
     def _notIn(self, item):
         return item not in self.local
 
     def rain(self):
         try:
-            self._gerar_linhas()
-            while self.local:
+            display = [self.colunas, self.linhas]
+            while self.local and display == list(get_size()):
                 for linha in self.linhas_matrix:
                     print(linha)
                 self._gerar_linhas()
                 self._refazer_strings()
-                sleep(0.1)
+                sleep(0.07)  # 0.1
+            if display != list(get_size()):
+                self._reiniciar()
         except KeyboardInterrupt:
             self.parar = True
             self.rain()
 
 
-if __name__ == '__main__':
+def texto_efeito_pausa(texto: str):
+    for a in texto:
+        print(a, end='')
+        sys.stdout.flush()
+        sleep(0.04)
+    print()
+
+
+def main():
+    texto_efeito_pausa('Conectando a matrix...')
+    sleep(1)
     matrix = Architect()
     matrix.rain()
+    for linha in matrix.linhas_matrix:
+        print(linha)
+    print(attr(0))
+    texto_efeito_pausa(attr(0) + '\nDesconectado.')
+
+
+if __name__ == '__main__':
+    main()
 
