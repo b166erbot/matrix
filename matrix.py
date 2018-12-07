@@ -62,11 +62,6 @@ class Architect:
                     texto += ' '
             self.linhas_matrix[linha] = texto
 
-    def _reiniciar(self):
-        self.__init__(True)
-        sleep(0.26)
-        self.rain()
-
     def _notIn(self, item):
         return item not in self.local
 
@@ -80,7 +75,9 @@ class Architect:
                 self._refazer_strings()
                 sleep(0.07)  # 0.1
             if display != list(get_size()):
-                self._reiniciar()
+                self.__init__(True)
+                sleep(0.26)
+                self.rain()
         except KeyboardInterrupt:
             self.parar = True
             self.rain()
