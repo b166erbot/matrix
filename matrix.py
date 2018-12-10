@@ -5,13 +5,14 @@ from os import get_terminal_size as get_size
 from string import ascii_lowercase as string
 from colored import fg, attr
 
+# string = [chr(i) for i in range(0x30a1, 0x30ff + 1)] # katakana characters
+
 
 class Architect:
-
     def __init__(self, recomeco=False):
         if not recomeco:
             print(fg('green'))
-        print('\n'*50)
+        print('\n'*30)
         self.colunas, self.linhas = list(get_size())
         self.minCol, self.maxCol = int(self.colunas/3), int(self.colunas/2)
         self.linhas_matrix, self.local = [], dict()
@@ -29,38 +30,38 @@ class Architect:
                       or self.parar else False)
         for a in self.local.copy():
             self.local[a] = [n + 1 for n in self.local[a]]
-            if self.local[a][0] == self.linhas:
+            if self.local[a][0] == self.linhas + 1:
+                # remover colunas
                 self.local.pop(a)
         if not self.trava:
+            ponta = choice(range(self.linhas//3))
             if len(self.local) >= self.minCol:
                 # inserir colunas, sortear colunas à acrecentar
                 if choice([0, 1]):
                     nova_lista = list(filter(self._notIn, range(self.colunas)))
                     coluna = choice(nova_lista)
-                    self.local[coluna] = [-choice(range(24)), 0]
+                    self.local[coluna] = [-choice(range(24)), ponta]
             elif len(self.local) >= 0:
                 # insirir colunas
                 nova_lista = list(filter(self._notIn, range(self.colunas)))
                 coluna = choice(nova_lista)
-                self.local[coluna] = [-choice(range(24)), 0]
+                self.local[coluna] = [-choice(range(24)), ponta]
 
     def _refazer_strings(self):
         """
         Método que refaz as strings deletando ou inserindo um novo caracter
         conforme o intervalo de distância predefinido em self.local
         """
-        for linha in range(0, self.linhas):
+        for linha in range(self.linhas):
             temp = self.linhas_matrix[linha].replace(fg('white'), '')
-            self.linhas_matrix[linha] = temp.replace(fg('green'), '')
-            texto = ''
-            for n in range(self.colunas):
-                if n in self.local and linha in range(*self.local[n]):
-                    texto += self.linhas_matrix[linha][n]
-                elif n in self.local and linha == self.local[n][1]:
-                    texto += fg('white') + choice(string) + fg('green')
-                else:
-                    texto += ' '
-            self.linhas_matrix[linha] = texto
+            temp = list(temp.replace(fg('green'), ''))
+            for coluna in self.local:
+                a, b = self.local[coluna]
+                if temp[coluna] == ' ' and linha == self.local[coluna][1]:
+                    temp[coluna] = fg('white') + choice(string) + fg('green')
+                elif temp[coluna] != ' ' and linha not in range(a, b):
+                    temp[coluna] = ' '
+            self.linhas_matrix[linha] = ''.join(temp)
 
     def _notIn(self, item):
         return item not in self.local
