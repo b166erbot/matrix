@@ -54,11 +54,16 @@ class Architect:
         """
         for linha in range(self.linhas):
             temp = self.linhas_matrix[linha].replace(fg('white'), '')
+            temp = temp.replace(fg('grey_89'), '').replace(fg('grey_66'), '')
             temp = list(temp.replace(fg('green'), ''))
             for coluna in self.local:
                 a, b = self.local[coluna]
-                if temp[coluna] == ' ' and linha == self.local[coluna][1]:
+                if temp[coluna] == ' ' and linha == b:
                     temp[coluna] = fg('white') + choice(string) + fg('green')
+                elif temp[coluna] != ' ' and abs(a-b) > 1 and linha == b-1:
+                    temp[coluna] = fg('grey_89') + choice(string) + fg('green')
+                elif temp[coluna] != ' ' and abs(a-b) > 2 and linha == b-2:
+                    temp[coluna] = fg('grey_66') + choice(string) + fg('green')
                 elif temp[coluna] != ' ' and linha not in range(a, b):
                     temp[coluna] = ' '
             self.linhas_matrix[linha] = ''.join(temp)
