@@ -1,0 +1,28 @@
+==================
+Matrix Rain Effect
+==================
+
+:Author: `Bernardo Freitas <//github.com/bernardofreitas>`_
+
+Usage:
+======
+
+    - python3 matrix.py
+    - to cancel the effect, press ctrl + c end the effect will be terminated.
+
+Descrition:
+===========
+
+    - The matrix rain effect made by me just for fun =].
+
+Requirements:
+=============
+
+    - colored>=1.3.93
+    To install execute: pip3 install -r requirements.txt
+
+Contributors:
+=============
+
+    - `Bernardo Freitas <//github.com/bernardofreitas>`_
+
