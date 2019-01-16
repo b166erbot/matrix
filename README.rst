@@ -4,16 +4,17 @@ Matrix Rain Effect
 
 :Author: `Bernardo Freitas <//github.com/bernardofreitas>`_
 
+Description:
+============
+
+    - The matrix rain effect made by me just for fun =].
+
 Usage:
 ======
 
     - python3 matrix.py
     - to cancel the effect, press ctrl + c end the effect will be terminated.
 
-Descrition:
-===========
-
-    - The matrix rain effect made by me just for fun =].
 
 Requirements:
 =============
