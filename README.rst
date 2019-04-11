@@ -4,6 +4,12 @@ Matrix Rain Effect
 
 :Author: `Bernardo Freitas <//github.com/bernardofreitas>`_
 
+Preview:
+========
+
+`<//github.com/bernardofreitas/matrix/preview/preview.mp4`_
+
+
 Description:
 ============
 
@@ -14,7 +20,6 @@ Usage:
 
     - python3 matrix.py
     - to cancel the effect, press ctrl + c end the effect will be terminated.
-
 
 Requirements:
 =============

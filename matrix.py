@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, randint  # noqa
 from time import sleep
 import sys
 from os import get_terminal_size as get_size
@@ -110,4 +110,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

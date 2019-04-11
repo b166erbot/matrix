@@ -2,3 +2,6 @@ Pip*
 matrix_*
 .git
 __pycache__
+matrixv*
+testes
+*.jpg
