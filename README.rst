@@ -7,7 +7,7 @@ Matrix Rain Effect
 Preview:
 ========
 
-.. video:: //github.com/bernardofreitas/matrix/preview/preview.mp4
+.. video:: preview/preview.mp4
 
 
 Description:
