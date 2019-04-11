@@ -4,12 +4,6 @@ Matrix Rain Effect
 
 :Author: `Bernardo Freitas <//github.com/bernardofreitas>`_
 
-Preview:
-========
-
-.. image:: //github.com/bernardofreitas/matrix/preview/preview.mp4
-
-
 Description:
 ============
 
