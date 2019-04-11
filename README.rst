@@ -7,7 +7,7 @@ Matrix Rain Effect
 Preview:
 ========
 
-.. video:: preview/preview.mp4
+.. gif:: preview/preview.mp4
 
 
 Description:
