@@ -13,7 +13,7 @@ Usage:
 ======
 
     - python3 matrix.py
-    - to cancel the effect, press ctrl + c end the effect will be terminated.
+    - to cancel the effect, press ctrl + c and the effect will be terminated.
 
 Requirements:
 =============
