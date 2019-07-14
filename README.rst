@@ -2,8 +2,6 @@
 Matrix Rain Effect
 ==================
 
-:Author: `Bernardo Freitas <//github.com/bernardofreitas>`_
-
 Description:
 ============
 
@@ -24,5 +22,4 @@ Requirements:
 Contributors:
 =============
 
-    - `Bernardo Freitas <//github.com/bernardofreitas>`_
-
+    - `b166erobot <//github.com/b166erobot>`_
