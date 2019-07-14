@@ -1,10 +1,11 @@
 from random import choice, choices, randint as ri
 from time import sleep
 from sys import stdout
-from os import get_terminal_size as get
+from os import get_terminal_size as get, system as sy
 from string import ascii_lowercase as string
 from colored import fg, attr
 from functools import reduce
+from cython import boundscheck, wraparound
 
 
 def texto_efeito_pausa(texto: str):
@@ -119,29 +120,32 @@ class Architect:
 
     def rain(self, stop=False):
         choice(self.colunas).ativo = True  # precisa iniciar a primeira
+        colunas, linhas = get()
         try:
-            colunas, linhas = get()
-            while list(get()) == [colunas, linhas]:
-                while list(filter(lambda x: x.ativo, self.colunas)):  # por frames
-                    if not stop:
-                        self.sortear()
-                    for b in range(choice(range(6))):  # por frame
-                        for a in zip(*self.colunas):  # por linha
-                            print(reduce(lambda x, y: x + y, a))
-                        sleep(0.05)  # velocidade frames
-                else:
-                    break
+            while self.condicoes(colunas, linhas):  # por frames
+                if not stop:
+                    self.sortear()
+                for b in range(choice(range(1, 5))):  # por frame
+                    for a in zip(*self.colunas):  # por linha
+                        print(reduce(lambda x, y: x + y, a))
+                    sleep(0.05)  # velocidade frames
         except KeyboardInterrupt:
             self.rain(True)
 
+    @boundscheck(False)
+    @wraparound(False)
     def sortear(self):
-        ativas = list(filter(lambda x: x.ativo, self.colunas))
-        desativas = list(filter(lambda x: not x.ativo, self.colunas))
-        if len(ativas) < self.c//3:
+        desativadas = [a for a in self.colunas if not a.ativo]
+        if self.c - len(desativadas) < self.c//3:
             if not choice(range(25)) == 1:
-                choice(desativas).__init__(True)
+                choice(desativadas).__init__(True,)
             else:
-                choice(desativas).__init__(True, choice((4, 5)))
+                choice(desativadas).__init__(True, choice((4, 5)))
+
+    def condicoes(self, colunas, linhas):
+        tupla =  ([a for a in get()] == [colunas, linhas],
+                  [x for x in self.colunas if x.ativo])
+        return all(tupla)
 
 
 def main():
@@ -156,10 +160,11 @@ def main():
 if __name__ == '__main__':
     main()
 
+# TODO: botar as colunas para se auto ativarem daqui a um certo tempo?
 # TODO: deixar rastro na tela como letras escrito algo, exemplo: matrix
 # TODO: mudar o background(cor de fundo) da tela para amarelo?
-# TODO: efeito alguém escrevendo
 # TODO: todos estão começando do início da tela, fazer com que não
 # TODO: fazer com que alguns caracteres no meio da coluna alterem
 # TODO: fazer com que algumas fileiras fiquem mais rápidas e outras mais lentas
+# TODO: fazer com que as colunas se desativem e vão para uma lista de desativa.?
 # TODO: tentar trazer os caracteres katakanas novamente?
