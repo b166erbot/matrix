@@ -1,9 +1,10 @@
-from random import choice, randint  # noqa
-from time import sleep
 import sys
 from os import get_terminal_size as get_size
+from random import choice, randint  # noqa
 from string import ascii_lowercase as string
-from colored import fg, attr
+from time import sleep
+
+from colored import attr, fg
 
 # string = [chr(i) for i in range(0x30a1, 0x30ff + 1)] # katakana characters
 

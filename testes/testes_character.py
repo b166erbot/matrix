@@ -1,6 +1,7 @@
+from string import ascii_lowercase as string
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from string import ascii_lowercase as string
+
 from matrix_.matrixv2 import Character, UltimoCharacter
 
 

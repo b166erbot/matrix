@@ -1,9 +1,11 @@
 from unittest import TestCase, skip
-from unittest.mock import patch , call
-from matrix_.matrixv2 import main, attr
+from unittest.mock import call, patch
+
+from matrix_.matrixv2 import attr, main
 
 
 class Testes(TestCase):
+    @patch('matrix_.matrixv2.print')
     @patch('matrix_.matrixv2.sleep')
     @patch('matrix_.matrixv2.Architect')
     @patch('matrix_.matrixv2.texto_efeito_pausa')
@@ -14,6 +16,7 @@ class Testes(TestCase):
         ]
         self.assertEqual(mock2.mock_calls, esperado)
 
+    @patch('matrix_.matrixv2.print')
     @patch('matrix_.matrixv2.sleep')
     @patch('matrix_.matrixv2.texto_efeito_pausa')
     @patch('matrix_.matrixv2.Architect')
@@ -22,6 +25,7 @@ class Testes(TestCase):
         mock.assert_any_call()
 
     @skip
+    @patch('matrix_.matrixv2.print')
     @patch('matrix_.matrixv2.sleep')
     @patch('matrix_.matrixv2.texto_efeito_pausa')
     @patch('matrix_.matrixv2.Architect.rain')
@@ -29,6 +33,7 @@ class Testes(TestCase):
         main()
         mock.assert_any_call()
 
+    @patch('matrix_.matrixv2.print')
     @patch('matrix_.matrixv2.sleep')
     @patch('matrix_.matrixv2.texto_efeito_pausa')
     @patch('matrix_.matrixv2.Architect.rain')

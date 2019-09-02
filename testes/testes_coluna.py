@@ -1,5 +1,6 @@
 from unittest import TestCase
-from matrix_.matrixv2 import Coluna, Character, UltimoCharacter
+
+from matrix_.matrixv2 import Character, Coluna, UltimoCharacter
 
 
 class TestColunaAtivoNaoAtivo(TestCase):

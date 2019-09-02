@@ -1,12 +1,15 @@
-from random import choice, choices, randint as ri
-from time import sleep
-from sys import stdout
-from os import get_terminal_size as get, system as sy
-from string import ascii_lowercase as string
-from colored import fg, attr
-from functools import reduce
-from cython import boundscheck, wraparound
 import asyncio
+from functools import reduce
+from os import get_terminal_size as get
+from os import system as sy
+from random import choice, choices
+from random import randint as ri
+from string import ascii_lowercase as string
+from sys import stdout
+from time import sleep
+
+from colored import attr, fg
+from cython import boundscheck, wraparound
 
 
 def texto_efeito_pausa(texto: str):
@@ -157,17 +160,16 @@ def main():
     texto_efeito_pausa('Conectando a matrix...')
     sleep(1)
     matrix = Architect()
-    # matrix.rain()
     matrix.tarefas_assincronas()
+    print('\n' * get()[1])
     texto_efeito_pausa(attr(0) + '\nDesconectado.')
 
 
 if __name__ == '__main__':
     main()
 
-# TODO: deixar rastro na tela como letras escrito algo, exemplo: matrix
-# TODO: todos estão começando do início da tela, fazer com que não
-# TODO: fazer com que alguns caracteres no meio da coluna alterem
+# TODO: deixar rastro na tela como palavras escrito algo, exemplo: matrix
+# TODO: fazer com que as colunas se iniciem em lugares aleatórios na tela.
+# TODO: fazer com que alguns caracteres no meio da coluna se modifiquem
 # TODO: fazer com que algumas fileiras fiquem mais rápidas e outras mais lentas
-# TODO: fazer com que as colunas se desativem e vão para uma lista de desativa.?
-# TODO: tentar trazer os caracteres katakanas novamente?
+# TODO: tentar trazer os caracteres katakanas novamente? (god mode programming)

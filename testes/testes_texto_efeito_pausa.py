@@ -1,7 +1,8 @@
-from unittest import TestCase
-from unittest.mock import patch
 import sys
 from io import StringIO
+from unittest import TestCase
+from unittest.mock import patch
+
 from matrix_.matrixv2 import texto_efeito_pausa
 
 
