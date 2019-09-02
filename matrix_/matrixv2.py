@@ -6,6 +6,7 @@ from string import ascii_lowercase as string
 from colored import fg, attr
 from functools import reduce
 from cython import boundscheck, wraparound
+import asyncio
 
 
 def texto_efeito_pausa(texto: str):
@@ -113,42 +114,51 @@ class Architect:
         self.c, l = get()
         self.colunas = [Coluna() for a in range(self.c)]
 
-    def rain(self, stop=False):
+    @boundscheck(False)
+    @wraparound(False)
+    async def rain(self, stop=False):
         choice(self.colunas).ativo = True  # precisa iniciar a primeira
         colunas, linhas = get()
-        try:
-            while self.condicoes(colunas, linhas):  # por frames
-                if not stop:
-                    self.sortear()
-                for b in range(choice(range(1, 5))):  # por frame
-                    # sy('clear')  # isso concerta um pouco o bug mas não o arruma
-                    for a in zip(*self.colunas):  # por linha
-                        print(reduce(lambda x, y: x + y, a))
-                    sleep(0.06)  # velocidade frames
-        except KeyboardInterrupt:
-            self.rain(True)
+        while self.condicoes(colunas, linhas):  # por frames
+            if not stop:
+                await self.sortear()
+            gerador = zip(*self.colunas)
+            gerador = (reduce(lambda x, y: x + y, z) for z in gerador)
+            # for x in gerador:
+            print(*gerador, sep='\n')
+            sleep(0.05)
 
     @boundscheck(False)
     @wraparound(False)
-    def sortear(self):
+    async def sortear(self):
         desativadas = [a for a in self.colunas if not a.ativo]
         if self.c - len(desativadas) < self.c//3:
             if not choice(range(25)) == 1:
                 choice(desativadas).__init__(True,)
             else:
                 choice(desativadas).__init__(True, choice((4, 5)))
+        await asyncio.sleep(0.01)
 
     def condicoes(self, colunas, linhas) -> bool:
         tupla =  ([a for a in get()] == [colunas, linhas],
                   [x for x in self.colunas if x.ativo])
         return all(tupla)
 
+    def tarefas_assincronas(self):
+        loop = asyncio.get_event_loop()
+        try:
+            loop.run_until_complete(self.rain())
+        except:
+            loop.run_until_complete(self.rain(True))
+        loop.close()
+
 
 def main():
     texto_efeito_pausa('Conectando a matrix...')
     sleep(1)
     matrix = Architect()
-    matrix.rain()
+    # matrix.rain()
+    matrix.tarefas_assincronas()
     texto_efeito_pausa(attr(0) + '\nDesconectado.')
 
 
