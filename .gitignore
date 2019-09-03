@@ -5,3 +5,6 @@ __pycache__
 *.jpg
 htmlcov
 .coverage
+build
+dist
+*.spec

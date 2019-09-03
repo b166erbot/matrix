@@ -2,8 +2,7 @@ import asyncio
 from functools import reduce
 from os import get_terminal_size as get
 from os import system as sy
-from random import choice, choices
-from random import randint as ri
+from random import choice, choices, shuffle, randint as ri
 from string import ascii_lowercase as string
 from sys import stdout
 from time import sleep
@@ -28,10 +27,10 @@ class Character:
              4: fg('yellow'),
              5: fg('red')}
 
-    def __init__(self, cont, intervalo, coluna):
+    def __init__(self, coluna):  # cont
         col, self.lin = get()
-        self.cont = cont
-        self.intervalo = intervalo
+        self.cont = 0  # cont
+        self.intervalo = coluna.intervalo
         self.coluna = coluna
         self.character = self.cores[3] + choice(string)
 
@@ -96,15 +95,29 @@ class UltimoCharacter(Character):
             return other.character + string
 
 
+class PulseCharacter(Character):
+    def novo_char(self):
+        if self.cont in range(3):
+            self.character = self.cores[self.cont] + choice(string)
+        else:
+            self.character = self.cores[0] + choice(string)
+
+
 class Coluna:
+    # talvez a resposta para o inicio da coluna esteja na função range do
+    # Character.novo_char
     def __init__(self, ativo=False, cor=3):
-        c, l = get()
-        u = range(choice(range(4, l)))  # p, u = ri(0, l//3), ri(l//2, l)
-        # sortear o -2 abaixo para achar o inicio da linha?
-        # já tentei, não funciona
-        v = choice(range(-2, 5))
-        self.cha = [Character(-a, u, self) for a in range(l-2)]
-        self.cha.append(UltimoCharacter(-(len(self.cha)+1), u, self))
+        colunas, linhas = get()
+        self.intervalo = range(choice(range(4, linhas)))
+        # self.cha = [Character(-a, self) for a in range(linhas - 2)]
+        # self.cha.append(UltimoCharacter(-(len(self.cha)+1), self))
+        self.cha = [Character(self) for x in range(linhas - 5)]
+        self.cha += [PulseCharacter(self) for x in range(3)]
+        shuffle(self.cha)
+        for numero, character in enumerate(self.cha):
+            character.cont = -numero
+        self.cha.append(UltimoCharacter(self))
+        self.cha[-1].cont = -(len(self.cha))
         self.ativo = ativo
         self.cor = cor
 
@@ -119,7 +132,7 @@ class Architect:
 
     @boundscheck(False)
     @wraparound(False)
-    async def rain(self, stop=False):
+    async def __rain(self, stop=False):
         choice(self.colunas).ativo = True  # precisa iniciar a primeira
         colunas, linhas = get()
         while self.condicoes(colunas, linhas):  # por frames
@@ -127,9 +140,8 @@ class Architect:
                 await self.sortear()
             gerador = zip(*self.colunas)
             gerador = (reduce(lambda x, y: x + y, z) for z in gerador)
-            # for x in gerador:
             print(*gerador, sep='\n')
-            sleep(0.05)
+            sleep(0.04)  # velocidade dos frames
 
     @boundscheck(False)
     @wraparound(False)
@@ -147,12 +159,12 @@ class Architect:
                   [x for x in self.colunas if x.ativo])
         return all(tupla)
 
-    def tarefas_assincronas(self):
+    def rain(self):
         loop = asyncio.get_event_loop()
         try:
-            loop.run_until_complete(self.rain())
+            loop.run_until_complete(self.__rain())
         except:
-            loop.run_until_complete(self.rain(True))
+            loop.run_until_complete(self.__rain(True))
         loop.close()
 
 
@@ -160,7 +172,7 @@ def main():
     texto_efeito_pausa('Conectando a matrix...')
     sleep(1)
     matrix = Architect()
-    matrix.tarefas_assincronas()
+    matrix.rain()
     print('\n' * get()[1])
     texto_efeito_pausa(attr(0) + '\nDesconectado.')
 

@@ -23,7 +23,7 @@
 
   - [ ] fazer com que as colunas se iniciem em lugares aleatórios na tela.
   - [ ] deixar rastro na tela como palavras escrito algo, exemplo: matrix.
-  - [ ] fazer com que alguns caracteres no meio da coluna se modifiquem.
+  - [x] fazer com que alguns caracteres no meio da coluna se modifiquem.
   - [ ] fazer com que algumas fileiras fiquem mais rápidas e outras mais lentas.
   - [ ] tentar trazer os caracteres katakanas novamente? (god mode programming).
 
