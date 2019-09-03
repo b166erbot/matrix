@@ -2,16 +2,18 @@ from string import ascii_lowercase as string
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from matrix_.matrixv2 import Character, UltimoCharacter
+from matrix_.matrix import Character, UltimoCharacter
 
 
 class TestesCharacter(TestCase):
     def setUp(self):
         mock, mock2 = MagicMock(), MagicMock()
-        mock.ativo, mock.cor = True, 3
-        mock2.ativo, mock2.cor = True, 3
-        self.c = Character(-2, range(24), mock)
-        self.d = Character(-2, range(24), mock2)
+        mock.ativo, mock.cor, mock.intervalo = True, 3, range(24)
+        mock2.ativo, mock2.cor, mock2.intervalo = True, 3, range(24)
+        self.c = Character(mock)
+        self.d = Character(mock2)
+        self.c.cont = -2
+        self.d.cont = -2
 
     def test_add_retornando_radd_com_erro_caso_other_igual_a_string(self):
         with self.assertRaises(AttributeError):
@@ -120,10 +122,12 @@ class TestesCharacter(TestCase):
 class TestesUltimoCharacter(TestesCharacter):
     def setUp(self):
         mock, mock2 = MagicMock(), MagicMock()
-        mock.ativo, mock.cor = True, 3
-        mock2.ativo, mock2.cor = True, 3
-        self.c = UltimoCharacter(-2, range(24), mock)
-        self.d = Character(-2, range(24), mock2)
+        mock.ativo, mock.cor, mock.intervalo = True, 3, range(24)
+        mock2.ativo, mock2.cor, mock2.intervalo = True, 3, range(24)
+        self.c = UltimoCharacter(mock)
+        self.d = Character(mock2)
+        self.c.cont = -2
+        self.d.cont = -2
 
     def test_add_desativando_a_coluna_caso_var_cont_maior_que_intervalo(self):
         self.c.cont = 25

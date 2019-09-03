@@ -2,7 +2,7 @@
 
 ##### Descrição:
 
-  - The matrix rain effect made by me just for fun =].
+  - O efeito matrix rain feito por mim somente por diversão =].
 
 ##### Pré-visualização:
 
@@ -16,7 +16,6 @@
 ##### Dependências:
 
   - colored
-  - cython
   - Para instalar execute: pip3 install -r requirements.txt
 
 ##### Todo:

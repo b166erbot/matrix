@@ -1,1 +1,1 @@
-colored>=1.3.93
+colored
