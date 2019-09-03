@@ -1,24 +1,31 @@
-Matrix Rain Effect
-==================
+# Efeito Matrix Rain
 
-##### Description:
+##### Descrição:
 
-  - The matrix rain effect made by me just for fun =].
+  - Efeito matrix rain feito por mim somente por diversão =].
 
-##### Preview:
+##### Pré-visualização:
 
-  - [preview](https://raw.githubusercontent.com/b166erobot/matrix/teste/preview/preview.mp4)
+  - [vídeo](https://raw.githubusercontent.com/b166erobot/matrix/teste/preview/preview.mp4)
 
-##### Usage:
+##### Usagem:
 
   - python3 matrix.py
-  - to cancel the effect, press ctrl + c and the effect will be terminated.
+  - Para cancelar o efeito pressione ctrl + c e o efeito será encerrado.
 
-##### Requirements:
+##### Dependências:
 
   - colored
-  - cython
-  - To install execute: pip3 install -r requirements.txt
+  - Para instalar execute: pip3 install -r requirements.txt
+
+##### Todo:
+
+  - [ ] fazer com que as colunas se iniciem em lugares aleatórios na tela.
+  - [ ] deixar rastro na tela como palavras escrito algo, exemplo: matrix.
+  - [x] fazer com que alguns caracteres no meio da coluna se modifiquem.
+  - [ ] fazer com que algumas fileiras fiquem mais rápidas e outras mais lentas.
+  - [ ] tentar trazer os caracteres katakanas novamente? (god mode programming).
+
 
 ##### Contributors:
 

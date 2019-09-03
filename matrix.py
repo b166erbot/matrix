@@ -1,5 +1,4 @@
-from matrix_.matrixv2 import main
-
+from matrix_.matrix import main
 
 if __name__ == '__main__':
     main()
