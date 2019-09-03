@@ -2,7 +2,7 @@
 
 ##### Descrição:
 
-  - O efeito matrix rain feito por mim somente por diversão =].
+  - Efeito matrix rain feito por mim somente por diversão =].
 
 ##### Pré-visualização:
 
