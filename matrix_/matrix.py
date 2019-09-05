@@ -4,6 +4,7 @@ from random import choice, shuffle, randint
 from string import ascii_lowercase as string
 from sys import stdout
 from time import sleep
+from itertools import dropwhile
 
 from colored import attr, fg
 # from cython import boundscheck, wraparound
@@ -18,12 +19,8 @@ def texto_efeito_pausa(texto: str):
 
 
 class Character:
-    cores = {0: fg('white'),
-             1: fg('grey_89'),
-             2: fg('grey_66'),
-             3: fg('green'),
-             4: fg('yellow'),
-             5: fg('red')}
+    cores = [fg('white'), fg('grey_89'), fg('grey_66'), fg('green'),
+             fg('yellow'), fg('red')]
 
     def __init__(self, coluna):
         col, self.lin = get()
@@ -55,17 +52,9 @@ class Character:
     def __len__(self):
         return len(self.character)
 
-    def __iter__(self):
-        return self
-
-    def ativo(self):
-        if self.coluna and self.coluna.ativo:
-            return True
-        return False
-
     def novo_char(self):
         if self.cont in range(3):
-            self.character = self.cores[self.cont] + choice(string)
+            self.character = self.cores[int(self.cont)] + choice(string)
         else:
             self.character = self.cores[self.coluna.cor] + self.character[-1]
 
@@ -96,37 +85,118 @@ class UltimoCharacter(Character):
 class PulseCharacter(Character):
     def novo_char(self):
         if self.cont in range(3):
-            self.character = self.cores[self.cont] + choice(string)
+            self.character = self.cores[int(self.cont)] + choice(string)
         elif self.cont % 2 == 0:
             self.character = self.cores[0] + choice(string)
+
+
+class RastroCharacter(Character):
+    def __add__(self, other):
+        condicoes = [self.cont > self.intervalo[0], self.coluna.ativo]
+        string = self.character if all(condicoes) else ' '
+        self.cont += 1
+        self.novo_char()
+        return other.__radd__(string)
+
+    def __radd__(self, other):
+        condicoes = [self.cont > self.intervalo[0], self.coluna.ativo]
+        string = self.character if all(condicoes) else ' '
+        self.cont += 1
+        self.novo_char()
+        if isinstance(other, str):
+            return other + string
+        else:
+            return other.character + string
+
+    def novo_char(self):
+        if self.cont in range(3):
+            self.character = self.cores[int(self.cont)] + choice(string)
+        elif self.cont > self.intervalo[-1]:
+            cha = self.coluna.arq.obter_cha(self.coluna)
+            self.character = self.cores[0] + cha
+
+
+# class InstavelCharacter(Character):
+#     def __init__(self, *args):
+#         super().__init__(*args)
+#         self.velocidade = args[0].velocidade
+#
+#     def __add__(self, other):
+#         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
+#         string = self.character if all(condicoes) else ' '
+#         self.cont += self.velocidade
+#         self.novo_char()
+#         return other.__radd__(string)
+#
+#     def __radd__(self, other):
+#         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
+#         string = self.character if all(condicoes) else ' '
+#         self.cont += self.velocidade
+#         self.novo_char()
+#         if isinstance(other, str):
+#             return other + string
+#         else:
+#            return other.character + string
 
 
 class Coluna:
     # talvez a resposta para o inicio da coluna esteja na função range do
     # Character.novo_char
-    def __init__(self, ativo=False, cor=3):
+    def __init__(self, ativo=False, cor=3, rastro='', arq=''):
         colunas, linhas = get()
         self.intervalo = range(choice(range(4, linhas)))
-        # self.cha = [Character(-a, self) for a in range(linhas - 2)]
-        # self.cha.append(UltimoCharacter(-(len(self.cha)+1), self))
-        self.cha = [Character(self) for x in range(linhas - 5)]
-        self.cha += [PulseCharacter(self) for x in range(3)]
-        shuffle(self.cha)
+        self.cha = [PulseCharacter(self) for x in range(3)]
+        if rastro:
+            self.rastro = rastro.center(colunas)
+            self.cha += [Character(self) for x in range(linhas - 6)]
+            shuffle(self.cha)
+            self.cha.insert((linhas - 6) // 2, RastroCharacter(self))
+        else:
+            self.cha += [Character(self) for x in range(linhas - 5)]
+            shuffle(self.cha)
+        self.cha.append(UltimoCharacter(self))
         for numero, character in enumerate(self.cha):
             character.cont = -numero
-        self.cha.append(UltimoCharacter(self))
-        self.cha[-1].cont = -(len(self.cha))
         self.ativo = ativo
         self.cor = cor
+        self.arq = arq
 
     def __iter__(self):
         return iter(self.cha)
 
 
-class Architect:
-    def __init__(self):
+# class ColunaInstavel(Coluna):
+#     def __init__(self, ativo=False, cor=3, rastro='', arq=''):
+#         self.velocidade = choice([0.5, 2])
+#         colunas, linhas = get()
+#         self.intervalo = range(choice(range(4, linhas)))
+#         self.cha = [PulseCharacter(self) for x in range(3)]
+#         if rastro:
+#             self.rastro = rastro.center(colunas)
+#             self.cha += [InstavelCharacter(self) for x in range(linhas - 6)]
+#             shuffle(self.cha)
+#             self.cha.insert((linhas - 6) // 2, RastroCharacter(self))
+#         else:
+#             self.cha += [InstavelCharacter(self) for x in range(linhas - 5)]
+#             shuffle(self.cha)
+#         self.cha.append(UltimoCharacter(self))
+#         for numero, character in enumerate(self.cha):
+#             character.cont = -numero
+#         self.ativo = ativo
+#         self.cor = cor
+#         self.arq = arq
+
+
+class Arquiteto:
+    def __init__(self, rastro):
         self.c, l = get()
-        self.colunas = [Coluna() for a in range(self.c)]
+        self.colunas = [Coluna(rastro=rastro, arq=self) for a in range(self.c)]
+        if rastro:
+            rastro = enumerate(rastro[:self.c].center(self.c))
+            rastro = list(dropwhile(lambda x: x[1] == ' ', rastro))
+            rastro = list(dropwhile(lambda x: x[1] == ' ', rastro[::-1]))
+            rastro = list(map(lambda x: x[0], rastro[::-1]))
+            self.marcar_rastro(rastro)
 
     def rain(self, stop=False):
         choice(self.colunas).ativo = True  # precisa iniciar a primeira
@@ -142,21 +212,30 @@ class Architect:
     def sortear(self):
         desativadas = [a for a in self.colunas if not a.ativo]
         if self.c - len(desativadas) < self.c//3:
-            if not choice(range(25)) == 1:
+            if not choice(range(20)) == 1:
                 choice(desativadas).__init__(True,)
             else:
                 choice(desativadas).__init__(True, choice((4, 5)))
+
+    def marcar_rastro(self, rastro):
+        for x in rastro:
+            self.colunas[x].ativo = True
+            for y in self.colunas[x].cha:
+                y.intervalo = range(randint(4, 7))
 
     def condicoes(self, colunas, linhas) -> bool:
         tupla =  ([a for a in get()] == [colunas, linhas],
                   [x for x in self.colunas if x.ativo])
         return all(tupla)
 
+    def obter_cha(self, coluna) -> str:
+        return coluna.rastro[self.colunas.index(coluna)]
 
-def main():
+
+def main(rastro):
     texto_efeito_pausa('Conectando a matrix...')
     sleep(1)
-    matrix = Architect()
+    matrix = Arquiteto(rastro)
     try:
         matrix.rain()
     except KeyboardInterrupt:
