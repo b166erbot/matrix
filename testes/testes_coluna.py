@@ -3,27 +3,23 @@ from unittest import TestCase
 from matrix_.matrix import Character, Coluna, UltimoCharacter
 
 
-class TestColunaAtivoNaoAtivo(TestCase):
-    def test_coluna_ativada(self):
-        c = Coluna(True, 3)
-        self.assertTrue(c.ativo)
-
-    def test_ativo_caracteres_retornando_true_caso_coluna_ativada(self):
-        c = Coluna(True, 3)
-        self.assertTrue(all(x.ativo() for x in c))
-
-    def test_coluna_desativada(self):
-        c = Coluna(False, 3)
-        self.assertFalse(c.ativo)
-
-    def test_ativo_caracteres_retornando_false_caso_coluna_desativada(self):
-        c = Coluna(False, 3)
-        self.assertFalse(any(x.ativo() for x in c))
-
-
-class DemaisTestes(TestCase):
+class Testes(TestCase):
     def setUp(self):
         self.c = Coluna(True, 3)
+
+    def test_coluna_ativada(self):
+        self.assertTrue(self.c.ativo)
+
+    def test_ativo_caracteres_retornando_true_caso_coluna_ativada(self):
+        self.assertTrue(all(x.coluna.ativo for x in self.c))
+
+    def test_coluna_desativada(self):
+        self.c = Coluna(False, 3)
+        self.assertFalse(self.c.ativo)
+
+    def test_ativo_caracteres_retornando_false_caso_coluna_desativada(self):
+        self.c = Coluna(False, 3)
+        self.assertFalse(any(x.coluna.ativo for x in self.c))
 
     def test_coluna_iteravel(self):
         gerador = (isinstance(a, (Character, UltimoCharacter)) for a in self.c)
