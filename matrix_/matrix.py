@@ -140,8 +140,6 @@ class RastroCharacter(Character):
 
 
 class Coluna:
-    # talvez a resposta para o inicio da coluna esteja na função range do
-    # Character.novo_char
     def __init__(self, ativo=False, cor=3, rastro='', arq=''):
         colunas, linhas = get()
         self.intervalo = range(choice(range(4, linhas)))
@@ -167,9 +165,9 @@ class Coluna:
 
 # class ColunaInstavel(Coluna):
 #     def __init__(self, ativo=False, cor=3, rastro='', arq=''):
-#         self.velocidade = choice([0.5, 2])
+#         self.velocidade = choice([0.5, 1.5])
 #         colunas, linhas = get()
-#         self.intervalo = range(choice(range(4, linhas)))
+#         self.intervalo = range(choice(range(3, linhas)))
 #         self.cha = [PulseCharacter(self) for x in range(3)]
 #         if rastro:
 #             self.rastro = rastro.center(colunas)
@@ -191,6 +189,7 @@ class Arquiteto:
     def __init__(self, rastro):
         self.c, l = get()
         self.colunas = [Coluna(rastro=rastro, arq=self) for a in range(self.c)]
+        self._rastro = True if rastro else False
         if rastro:
             rastro = enumerate(rastro[:self.c].center(self.c))
             rastro = list(dropwhile(lambda x: x[1] == ' ', rastro))
@@ -199,8 +198,9 @@ class Arquiteto:
             self.marcar_rastro(rastro)
 
     def rain(self, stop=False):
-        choice(self.colunas).ativo = True  # precisa iniciar a primeira
         colunas, linhas = get()
+        if all([not self._rastro, self.condicoes(colunas, linhas)]):
+            choice(self.colunas).ativo = True  # precisa iniciar a primeira
         while self.condicoes(colunas, linhas):  # por frames
             if not stop:
                 self.sortear()
@@ -239,7 +239,11 @@ def main(rastro):
     try:
         matrix.rain()
     except KeyboardInterrupt:
-        matrix.rain(True)
+        while matrix.condicoes(*get()):
+            try:
+                matrix.rain(True)
+            except KeyboardInterrupt:
+                pass
     print('\n' * get()[1])
     texto_efeito_pausa(attr(0) + '\nDesconectado.')
 
@@ -251,3 +255,9 @@ if __name__ == '__main__':
 # TODO: fazer com que as colunas se iniciem em lugares aleatórios na tela.
 # TODO: fazer com que algumas fileiras fiquem mais rápidas e outras mais lentas
 # TODO: tentar trazer os caracteres katakanas novamente? (god mode programming)
+
+# todo 2
+# todos os characters da coluna estão imprimindo, para que não ocorra, adicione
+# um range de inicio e fim e verifique se o index do cha está nesse range no
+# __(r)add__. não se esqueça de colocar o tamanho máximo (0, linhas) para o
+# self.tamanho caso faça o segundo TODO.
