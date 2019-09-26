@@ -1,19 +1,18 @@
 from functools import reduce
-from os import get_terminal_size as get
-from random import choice, shuffle, randint
-from string import ascii_lowercase as string
-from sys import stdout
-from time import sleep
 from itertools import dropwhile
+from os import get_terminal_size as get
+from random import choice, randint, shuffle
+from string import ascii_lowercase as string
+from time import sleep
 
 from colored import attr, fg
+
 # from cython import boundscheck, wraparound
 
 
 def texto_efeito_pausa(texto: str):
-    for a in texto:
-        print(a, end='')
-        stdout.flush()
+    for letra in texto:
+        print(letra, end='', flush=True)
         sleep(0.04)
     print()
 
@@ -33,18 +32,19 @@ class Character:
         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
         self.cont += 1
-        self.novo_char()
+        self.character = self.novo_char()
         return other.__radd__(string)
 
     def __radd__(self, other):
         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
         self.cont += 1
-        self.novo_char()
+        self.character = self.novo_char()
         if isinstance(other, str):
-            return other + string
+            char = other + string
         else:
-            return other.character + string
+            char = other.character + string
+        return char
 
     def __repr__(self):
         return self.character
@@ -54,40 +54,44 @@ class Character:
 
     def novo_char(self):
         if self.cont in range(3):
-            self.character = self.cores[int(self.cont)] + choice(string)
+            char = self.cores[int(self.cont)] + choice(string)
         else:
-            self.character = self.cores[self.coluna.cor] + self.character[-1]
+            char = self.cores[self.coluna.cor] + self.character[-1]
+        return char
 
 
 class UltimoCharacter(Character):
     def __add__(self, other):
         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
-        if not self.cont < self.intervalo[-1] and self.coluna.ativo:
+        if all((self.cont > self.intervalo[-1], self.coluna.ativo)):
             self.coluna.ativo = False
         self.cont += 1
-        self.novo_char()
+        self.character = self.novo_char()
         return other.__radd__(string)
 
     def __radd__(self, other):
         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
-        if not self.cont < self.intervalo[-1] and self.coluna.ativo:
+        if all((self.cont > self.intervalo[-1], self.coluna.ativo)):
             self.coluna.ativo = False
         self.cont += 1
-        self.novo_char()
+        self.character = self.novo_char()
         if isinstance(other, str):
-            return other + string
+            char = other + string
         else:
-            return other.character + string
+            char = other.character + string
+        return char
 
 
 class PulseCharacter(Character):
     def novo_char(self):
+        char = self.character
         if self.cont in range(3):
-            self.character = self.cores[int(self.cont)] + choice(string)
+            char = self.cores[int(self.cont)] + choice(string)
         elif self.cont % 2 == 0:
-            self.character = self.cores[0] + choice(string)
+            char = self.cores[0] + choice(string)
+        return char
 
 
 class RastroCharacter(Character):
@@ -95,25 +99,27 @@ class RastroCharacter(Character):
         condicoes = [self.cont > self.intervalo[0], self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
         self.cont += 1
-        self.novo_char()
+        self.character = self.novo_char()
         return other.__radd__(string)
 
     def __radd__(self, other):
         condicoes = [self.cont > self.intervalo[0], self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
         self.cont += 1
-        self.novo_char()
+        self.character = self.novo_char()
         if isinstance(other, str):
-            return other + string
+            char = other + string
         else:
-            return other.character + string
+            char = other.character + string
+        return char
 
     def novo_char(self):
+        char = self.character
         if self.cont in range(3):
-            self.character = self.cores[int(self.cont)] + choice(string)
+            char = self.cores[int(self.cont)] + choice(string)
         elif self.cont > self.intervalo[-1]:
-            cha = self.coluna.arq.obter_cha(self.coluna)
-            self.character = self.cores[0] + cha
+            char = self.cores[0] + self.coluna.arq.obter_cha(self.coluna)
+        return char
 
 
 # class InstavelCharacter(Character):
@@ -125,18 +131,19 @@ class RastroCharacter(Character):
 #         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
 #         string = self.character if all(condicoes) else ' '
 #         self.cont += self.velocidade
-#         self.novo_char()
+#         self.character = self.novo_char()
 #         return other.__radd__(string)
 #
 #     def __radd__(self, other):
 #         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
 #         string = self.character if all(condicoes) else ' '
 #         self.cont += self.velocidade
-#         self.novo_char()
+#         self.character = self.novo_char()
 #         if isinstance(other, str):
-#             return other + string
+#             char = other + string
 #         else:
-#            return other.character + string
+#             char = other.character + string
+#         return char
 
 
 class Coluna:
@@ -224,8 +231,8 @@ class Arquiteto:
                 y.intervalo = range(randint(4, 7))
 
     def condicoes(self, colunas, linhas) -> bool:
-        tupla =  ([a for a in get()] == [colunas, linhas],
-                  [x for x in self.colunas if x.ativo])
+        tupla = (list(get()) == [colunas, linhas],
+                 [x for x in self.colunas if x.ativo])
         return all(tupla)
 
     def obter_cha(self, coluna) -> str:
@@ -247,9 +254,6 @@ def main(rastro):
     print('\n' * get()[1])
     texto_efeito_pausa(attr(0) + '\nDesconectado.')
 
-
-if __name__ == '__main__':
-    main()
 
 # TODO: deixar rastro na tela como palavras escrito algo, exemplo: matrix
 # TODO: fazer com que as colunas se iniciem em lugares aleatórios na tela.

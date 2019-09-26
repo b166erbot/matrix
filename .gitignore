@@ -8,3 +8,7 @@ htmlcov
 build
 dist
 *.spec
+.tox
+*.egg-info
+.coveragerc
+source.sh
