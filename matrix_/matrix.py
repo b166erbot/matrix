@@ -199,7 +199,7 @@ class Arquiteto:
 
     def rain(self, stop=False):
         colunas, linhas = get()
-        if all([not self._rastro, self.condicoes(colunas, linhas)]):
+        if not self._rastro:
             choice(self.colunas).ativo = True  # precisa iniciar a primeira
         while self.condicoes(colunas, linhas):  # por frames
             if not stop:
