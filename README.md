@@ -11,12 +11,12 @@
 
 ##### Pré-visualização:
 
-  - ![vídeo](https://raw.githubusercontent.com/b166erobot/matrix/teste/preview/preview.gif)
+  ![vídeo](https://raw.githubusercontent.com/b166erobot/matrix/teste/preview/preview.gif)
 
 ##### Usagem:
 
   - python3 matrix.py
-  - python matrix.py `escreva alguma frase aqui`
+  - python3 matrix.py `escreva alguma frase aqui`
   - Para cancelar o efeito pressione ctrl + c e o efeito será encerrado.
 
 ##### Todo:
