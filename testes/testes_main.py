@@ -37,8 +37,9 @@ class Testes(TestCase):
     @patch('matrix_.matrix.texto_efeito_pausa')
     @patch('matrix_.matrix.Arquiteto.rain')
     def test_rain_nao_retornando_erro_de_KeyboardInterrupt(self, mock, *_):
-        mock.side_effect = [KeyboardInterrupt(), 0]
+        mock.side_effect = [KeyboardInterrupt()]
         main('')
+        self.assertEqual(mock.call_count, 1)
 
     @patch('matrix_.matrix.print')
     @patch('matrix_.matrix.sleep')
