@@ -4,14 +4,14 @@ from os import get_terminal_size as get
 from random import choice, randint, shuffle
 from string import ascii_lowercase as string
 from time import sleep
-from typing import NoReturn, Union  # noqa
+from typing import Iterable, Union
 
 from colored import attr, fg
 
 # from cython import boundscheck, wraparound
 
 
-def texto_efeito_pausa(texto: str) -> NoReturn:
+def texto_efeito_pausa(texto: str):
     """ Função que imprime um texto como se alguém estivesse digitando. """
     for letra in texto:
         print(letra, end='', flush=True)
@@ -180,7 +180,7 @@ class Coluna:
         self.cor = cor
         self.arq = arq
 
-    def __iter__(self) -> iter:
+    def __iter__(self) -> Iterable:
         """ Método que devolve todos os caracteres contidos na coluna. """
         return iter(self.cha)
 
@@ -220,7 +220,7 @@ class Arquiteto:
             rastro = list(map(lambda x: x[0], rastro[::-1]))
             self.marcar_rastro(rastro)
 
-    def rain(self, stop=False) -> NoReturn:
+    def rain(self, stop=False):
         """ Método que imprime o efeito matrix na tela. """
         colunas, linhas = get()
         if not self._rastro:
@@ -233,7 +233,7 @@ class Arquiteto:
             print(*gerador, sep='\n')
             sleep(0.04)  # velocidade dos frames
 
-    def sortear(self) -> NoReturn:
+    def sortear(self):
         """ Método que sorteia uma nova coluna para ser ativada. """
         desativadas = [a for a in self.colunas if not a.ativo]
         if self.c - len(desativadas) < self.c//3:
@@ -242,7 +242,7 @@ class Arquiteto:
             else:
                 choice(desativadas).__init__(True, choice((4, 5)))
 
-    def marcar_rastro(self, rastro: str) -> NoReturn:
+    def marcar_rastro(self, rastro: list):
         """ Método que ativa todas as colunas que contém o rastro. """
         for x in rastro:
             self.colunas[x].ativo = True
@@ -262,7 +262,7 @@ class Arquiteto:
         return coluna.rastro[self.colunas.index(coluna)]
 
 
-def main(rastro: str) -> NoReturn:
+def main(rastro: str):
     """ Função principal que roda o código. """
     texto_efeito_pausa('Conectando a matrix...')
     sleep(1)

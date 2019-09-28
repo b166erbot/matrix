@@ -28,6 +28,6 @@
   - [ ] tentar trazer os caracteres katakanas novamente? (god mode programming).
 
 
-##### Contributors:
+##### Contribuidores:
 
   - [b166erobot](//github.com/b166erobot)
