@@ -1,5 +1,5 @@
-from unittest import TestCase, skip
-from unittest.mock import patch, MagicMock
+from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 from matrix_.matrix import Arquiteto, Coluna, get
 
@@ -93,7 +93,7 @@ class Testes(TestCase):
     @patch('matrix_.matrix.print')
     @patch('matrix_.matrix.choice')
     def test_rain_primeira_coluna_sendo_definida(self, choice, *_):
-        mock = MagicMock(side_effect = (1, 0))
+        mock = MagicMock(side_effect=(1, 0))
         self.a.condicoes = mock
         self.a.rain(False)
         self.assertIs(choice().ativo, True)
@@ -102,7 +102,7 @@ class Testes(TestCase):
     @patch('matrix_.matrix.print')
     @patch('matrix_.matrix.choice')
     def test_rain_stop_true_nao_chamando_sortear(self, *_):
-        mock = MagicMock(side_effect = (1, 0))
+        mock = MagicMock(side_effect=(1, 0))
         mock2 = MagicMock()
         self.a.condicoes = mock
         self.a.sortear = mock2
@@ -113,7 +113,7 @@ class Testes(TestCase):
     @patch('matrix_.matrix.print')
     @patch('matrix_.matrix.choice')
     def test_rain_stop_false_chamando_sortear(self, *_):
-        mock = MagicMock(side_effect = (1, 0))
+        mock = MagicMock(side_effect=(1, 0))
         mock2 = MagicMock()
         self.a.condicoes = mock
         self.a.sortear = mock2
@@ -124,7 +124,7 @@ class Testes(TestCase):
     @patch('matrix_.matrix.print')
     @patch('matrix_.matrix.choice')
     def test_rain_stop_sortear_sendo_chamando_25_vezes(self, *_):
-        mock = MagicMock(side_effect = (1,) * 25 + (0,))
+        mock = MagicMock(side_effect=(1,) * 25 + (0,))
         mock2 = MagicMock()
         self.a.condicoes = mock
         self.a.sortear = mock2

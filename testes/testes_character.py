@@ -1,9 +1,8 @@
-from string import ascii_lowercase as string
 from unittest import TestCase, skip
 from unittest.mock import MagicMock
 
-from matrix_.matrix import (Coluna, Character, UltimoCharacter, PulseCharacter,
-                           RastroCharacter)
+from matrix_.matrix import (Character, PulseCharacter, RastroCharacter,
+                            UltimoCharacter)
 
 
 class TestesCharacter(TestCase):
@@ -21,50 +20,50 @@ class TestesCharacter(TestCase):
             self.c + ''
 
     def test_add_antes_do_intervalo_retornando_string_verde(self):
-        temp = self.c + self.d
+        self.c + self.d
         self.assertRegex(self.c.character, r'\x1b\[38;5;2m\w')
 
     def test_add_depois_do_intervalo_retornando_string_verde(self):
         self.c.cont = 2
-        temp = self.c + self.d
+        self.c + self.d
         self.assertRegex(self.c.character, r'\x1b\[38;5;2m\w')
 
     def test_add_cont_white(self):
         self.c.cont = -1
-        temp = self.c + self.d
+        self.c + self.d
         self.assertRegex(self.c.character, r'\x1b\[38;5;15m\w')
 
     def test_add_cor_grey_89(self):
         self.c.cont = 0
-        temp = self.c + self.d
+        self.c + self.d
         self.assertRegex(self.c.character, r'\x1b\[38;5;254m\w')
 
     def test_add_cor_grey_66(self):
         self.c.cont = 1
-        temp = self.c + self.d
+        self.c + self.d
         self.assertRegex(self.c.character, r'\x1b\[38;5;248m\w')
 
     def test_add_variavel_cont_maior_que_limite_retornando_string_verde(self):
         self.c.cont = 29
-        temp = self.c + self.d
+        self.c + self.d
         self.assertRegex(self.c.character, r'\x1b\[38;5;2m\w')
 
     def test_add_chamando_funcao_novo_char(self):
         mock = MagicMock()
         self.c.novo_char = mock
-        temp = self.c + self.d
+        self.c + self.d
         mock.assert_any_call()
 
     def test_add_retorne_string_com_espaco_caso_condicoes_false(self):
         self.c.cont, self.c.intervalo = 0, range(-15, -13)
         mock = MagicMock()
-        temp = self.c + mock
+        self.c + mock
         mock.__radd__.assert_called_with(' ')
 
     def test_add_retorne_character_caso_condicoes_true(self):
         self.c.intervalo = range(-5, 5)
         mock = MagicMock()
-        temp = self.c + mock
+        self.c + mock
         argumento = mock.__radd__.call_args_list[0][0][0]
         self.assertRegex(argumento, r'\x1b\[38;5;2m\w')
 
@@ -72,50 +71,50 @@ class TestesCharacter(TestCase):
         self.assertEqual('' + self.c, ' ')
 
     def test_radd_antes_do_intervalo_retornando_string_verde(self):
-        temp = self.c.__radd__(' ')
+        self.c.__radd__(' ')
         self.assertRegex(self.c.character, r'\x1b\[38;5;2m\w')
 
     def test_radd_depois_do_intervalo_retornando_string_verde(self):
         self.c.cont = 2
-        temp = self.c.__radd__(' ')
+        self.c.__radd__(' ')
         self.assertRegex(self.c.character, r'\x1b\[38;5;2m\w')
 
     def test_radd_cont_white(self):
         self.c.cont = -1
-        temp = self.c.__radd__(' ')
+        self.c.__radd__(' ')
         self.assertRegex(self.c.character, r'\x1b\[38;5;15m\w')
 
     def test_radd_cor_grey_89(self):
         self.c.cont = 0
-        temp = self.c.__radd__(' ')
+        self.c.__radd__(' ')
         self.assertRegex(self.c.character, r'\x1b\[38;5;254m\w')
 
     def test_radd_cor_grey_66(self):
         self.c.cont = 1
-        temp = self.c.__radd__(' ')
+        self.c.__radd__(' ')
         self.assertRegex(self.c.character, r'\x1b\[38;5;248m\w')
 
     def test_radd_variavel_cont_maior_que_limite_retornando_string_verde(self):
         self.c.cont = 29
-        temp = self.c.__radd__(' ')
+        self.c.__radd__(' ')
         self.assertRegex(self.c.character, r'\x1b\[38;5;2m\w')
 
     def test_radd_chamando_funcao_novo_char(self):
         mock = MagicMock()
         self.c.novo_char = mock
-        temp = self.c.__radd__(' ')
+        self.c.__radd__(' ')
         mock.assert_any_call()
 
     def test_radd_retorne_string_com_espaco_caso_condicoes_false(self):
         self.c.cont, self.c.intervalo = 0, range(-15, -13)
         mock = MagicMock()
-        temp = self.c.__radd__(mock)
+        self.c.__radd__(mock)
         mock.character.__add__.assert_called_with(' ')
 
     def test_radd_retorne_character_caso_condicoes_true(self):
         self.c.intervalo = range(-5, 5)
         mock = MagicMock()
-        temp = self.c.__radd__(mock)
+        self.c.__radd__(mock)
         argumento = mock.character.__add__.call_args_list[0][0][0]
         self.assertRegex(argumento, r'\x1b\[38;5;2m\w')
 
@@ -125,6 +124,31 @@ class TestesCharacter(TestCase):
 
     def test_len_retornando_o_tamanho_do_caracter(self):
         self.assertEqual(len(self.c), 10)
+
+    def test_repr_retornando_o_caracter(self):
+        self.assertRegex(repr(self.c), r'\x1b\[38;5;2m\w')
+
+    def test_novo_char_retornando_caracter_branco_caso_cont_igual_a_0(self):
+        self.c.cont = 0
+        resultado = self.c.novo_char()
+        self.assertRegex(resultado, r'\x1b\[38;5;15m\w')
+
+    def test_novo_char_retornando_caracter_grey_89_caso_cont_igual_a_1(self):
+        self.c.cont = 1
+        resultado = self.c.novo_char()
+        self.assertRegex(resultado, r'\x1b\[38;5;254m\w')
+
+    def test_novo_char_retornando_caracter_grey_66_caso_cont_igual_a_2(self):
+        self.c.cont = 2
+        resultado = self.c.novo_char()
+        self.assertRegex(resultado, r'\x1b\[38;5;248m\w')
+
+    def test_novo_char_retornando_caracter_amarelo_caso_cont_fora_do_range_3(self):
+        self.c.cont = 25
+        self.c.character = 'o'
+        self.c.coluna.cor = 4
+        resultado = self.c.novo_char()
+        self.assertRegex(resultado, r'\x1b\[38;5;3m\w')
 
 
 class TestesUltimoCharacter(TestesCharacter):
@@ -139,12 +163,12 @@ class TestesUltimoCharacter(TestesCharacter):
 
     def test_add_desativando_a_coluna_caso_var_cont_maior_que_intervalo(self):
         self.c.cont = 25
-        temp = self.c + self.d
+        self.c + self.d
         self.assertFalse(self.c.coluna.ativo)
 
     def test_radd_desativando_a_coluna_caso_var_cont_maior_que_intervalo(self):
         self.c.cont = 25
-        temp = self.c.__radd__(self.d)
+        self.c.__radd__(self.d)
         self.assertFalse(self.c.coluna.ativo)
 
 
@@ -166,7 +190,7 @@ class TestesPulseCharacter(TestesCharacter):
 
     def test_radd_variavel_cont_maior_que_limite_retornando_string_branca(self):
         self.c.cont = 29
-        temp = self.c.__radd__(' ')
+        self.c.__radd__(' ')
         self.assertRegex(self.c.character, r'\x1b\[38;5;15m\w')
 
     @skip
@@ -175,8 +199,17 @@ class TestesPulseCharacter(TestesCharacter):
 
     def test_add_variavel_cont_maior_que_limite_retornando_string_branca(self):
         self.c.cont = 29
-        temp = self.c + self.d
+        self.c + self.d
         self.assertRegex(self.c.character, r'\x1b\[38;5;15m\w')
+
+    def test_novo_char_retornando_caracter_white_caso_cont_seja_positivo(self):
+        self.c.cont = 4
+        resultado = self.c.novo_char()
+        self.assertRegex(resultado, r'\x1b\[38;5;15m\w')
+
+    @skip
+    def test_novo_char_retornando_caracter_amarelo_caso_cont_fora_do_range_3(self):
+        pass
 
 
 class TestesRastroCharacter(TestesCharacter):
@@ -192,26 +225,38 @@ class TestesRastroCharacter(TestesCharacter):
     def test_radd_retorne_string_com_espaco_caso_condicoes_false(self):
         self.c.cont, self.c.intervalo = -16, range(-15, -13)
         mock = MagicMock()
-        temp = self.c.__radd__(mock)
+        self.c.__radd__(mock)
         mock.character.__add__.assert_called_with(' ')
 
     def test_add_retorne_string_com_espaco_caso_condicoes_false(self):
         self.c.cont, self.c.intervalo = -16, range(-15, -13)
         mock = MagicMock()
-        temp = self.c + mock
+        self.c + mock
         mock.__radd__.assert_called_with(' ')
 
-    @skip
     def test_radd_variavel_cont_maior_que_limite_retornando_string_verde(self):
-        pass
+        self.c.count = 200
+        self.c + self.d
+        self.assertRegex(self.c.character, r'\x1b\[38;5;2m\w')
+
+    def test_novo_char_retornando_caracter_white_caso_cont_maior_intervalo(self):
+        self.c.cont = 25
+        self.c.coluna.arq.obter_cha.return_value = 'o'
+        resultado = self.c.novo_char()
+        self.assertRegex(resultado, r'\x1b\[38;5;15m\w')
 
     @skip('não sei como testar ainda')
     def test_radd_variavel_cont_maior_que_limite_retornando_string_branca(self):
+        # self.c.character = ???
         # self.c.cont = 29
-        # temp = self.c.__radd__(' ')
+        # self.c.__radd__(' ')
         # self.assertRegex(self.c.character, r'\x1b\[38;5;15m\w')
         pass
 
     @skip
     def test_add_variavel_cont_maior_que_limite_retornando_string_verde(self):
+        pass
+
+    @skip
+    def test_novo_char_retornando_caracter_amarelo_caso_cont_fora_do_range_3(self):
         pass
