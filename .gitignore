@@ -4,7 +4,8 @@ __pycache__
 # matrixv*
 *.jpg
 htmlcov
-.coverage
+.coverage*
 build
 dist
 *.spec
+source.sh
