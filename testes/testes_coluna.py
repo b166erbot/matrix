@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from matrix_.matrix import Caracte, Coluna, UltimoCaracte
+from matrix_.matrix import Caracter, Coluna, UltimoCaracter
 
 
 class Testes(TestCase):
@@ -22,12 +22,12 @@ class Testes(TestCase):
         self.assertFalse(any(x.coluna.ativo for x in self.c))
 
     def test_coluna_iteravel(self):
-        gerador = (isinstance(a, (Caracte, UltimoCaracte)) for a in self.c)
+        gerador = (isinstance(a, (Caracter, UltimoCaracter)) for a in self.c)
         self.assertTrue(all(gerador))
 
     def test_verificar_se_todos_os_characteres_estao_no_devido_lugar(self):
-        gerador = (isinstance(a, Caracte) for a in self.c.cha[:-1])
+        gerador = (isinstance(a, Caracter) for a in self.c.cha[:-1])
         self.assertTrue(all(gerador))
 
     def test_verificar_se_o_ultimo_character_esta_no_devido_lugar(self):
-        self.assertIsInstance(self.c.cha[-1], UltimoCaracte)
+        self.assertIsInstance(self.c.cha[-1], UltimoCaracter)

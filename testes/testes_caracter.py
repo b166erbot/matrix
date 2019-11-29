@@ -1,17 +1,17 @@
 from unittest import TestCase, skip
 from unittest.mock import MagicMock
 
-from matrix_.matrix import (Caracte, PulseCaracte, RastroCaracte,
-                            UltimoCaracte)
+from matrix_.matrix import (Caracter, PulseCaracter, RastroCaracter,
+                            UltimoCaracter)
 
 
-class TestesCaracte(TestCase):
+class TestesCaracter(TestCase):
     def setUp(self):
         mock, mock2 = MagicMock(), MagicMock()
         mock.ativo, mock.cor, mock.intervalo = True, 3, range(24)
         mock2.ativo, mock2.cor, mock2.intervalo = True, 3, range(24)
-        self.c = Caracte(mock)
-        self.d = Caracte(mock2)
+        self.c = Caracter(mock)
+        self.d = Caracter(mock2)
         self.c.cont = -2
         self.d.cont = -2
 
@@ -151,13 +151,13 @@ class TestesCaracte(TestCase):
         self.assertRegex(resultado, r'\x1b\[38;5;3m\w')
 
 
-class TestesUltimoCaracte(TestesCaracte):
+class TestesUltimoCaracter(TestesCaracter):
     def setUp(self):
         mock, mock2 = MagicMock(), MagicMock()
         mock.ativo, mock.cor, mock.intervalo = True, 3, range(24)
         mock2.ativo, mock2.cor, mock2.intervalo = True, 3, range(24)
-        self.c = UltimoCaracte(mock)
-        self.d = Caracte(mock2)
+        self.c = UltimoCaracter(mock)
+        self.d = Caracter(mock2)
         self.c.cont = -2
         self.d.cont = -2
 
@@ -172,15 +172,15 @@ class TestesUltimoCaracte(TestesCaracte):
         self.assertFalse(self.c.coluna.ativo)
 
 
-class TestesPulseCaracte(TestesCaracte):
+class TestesPulseCaracter(TestesCaracter):
     def setUp(self):
         mock, mock2 = MagicMock(), MagicMock()
         mock.ativo, mock.cor, mock.intervalo = True, 3, range(24)
         mock2.ativo, mock2.cor, mock2.intervalo = True, 3, range(24)
         mock.arq.obter_cha.return_value = 't'
         mock2.arq.obter_cha.return_value = 't'
-        self.c = PulseCaracte(mock)
-        self.d = PulseCaracte(mock2)
+        self.c = PulseCaracter(mock)
+        self.d = PulseCaracter(mock2)
         self.c.cont = -2
         self.d.cont = -2
 
@@ -212,13 +212,13 @@ class TestesPulseCaracte(TestesCaracte):
         pass
 
 
-class TestesRastroCaracte(TestesCaracte):
+class TestesRastroCaracter(TestesCaracter):
     def setUp(self):
         mock, mock2 = MagicMock(), MagicMock()
         mock.ativo, mock.cor, mock.intervalo = True, 3, range(24)
         mock2.ativo, mock2.cor, mock2.intervalo = True, 3, range(24)
-        self.c = RastroCaracte(mock)
-        self.d = RastroCaracte(mock2)
+        self.c = RastroCaracter(mock)
+        self.d = RastroCaracter(mock2)
         self.c.cont = -2
         self.d.cont = -2
 

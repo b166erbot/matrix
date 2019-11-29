@@ -19,7 +19,7 @@ def texto_efeito_pausa(texto: str):
     print()
 
 
-class Caracte:
+class Caracter:
     """ Classe que representa um caracter qualquer. """
     cores = [fg('white'), fg('grey_89'), fg('grey_66'), fg('green'),
              fg('yellow'), fg('red')]
@@ -64,9 +64,9 @@ class Caracte:
         return char
 
 
-class UltimoCaracte(Caracte):
+class UltimoCaracter(Caracter):
     """ Classe que representa o ultimo caracter de uma coluna. """
-    def __add__(self, other) -> Caracte:
+    def __add__(self, other) -> Caracter:
         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
         if all((self.cont > self.intervalo[-1], self.coluna.ativo)):
@@ -75,7 +75,7 @@ class UltimoCaracte(Caracte):
         self.character = self.novo_char()
         return other.__radd__(string)
 
-    def __radd__(self, other) -> Union[str, Caracte]:
+    def __radd__(self, other) -> Union[str, Caracter]:
         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
         if all((self.cont > self.intervalo[-1], self.coluna.ativo)):
@@ -89,7 +89,7 @@ class UltimoCaracte(Caracte):
         return char
 
 
-class PulseCaracte(Caracte):
+class PulseCaracter(Caracter):
     """
     Classe que representa o caracter que se auto modifica de tempos em tempos.
     """
@@ -103,18 +103,18 @@ class PulseCaracte(Caracte):
         return char
 
 
-class RastroCaracte(Caracte):
+class RastroCaracter(Caracter):
     """
     Classe que representa o caracter que permanece quando a coluna termina.
     """
-    def __add__(self, other) -> Caracte:
+    def __add__(self, other) -> Caracter:
         condicoes = [self.cont > self.intervalo[0], self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
         self.cont += 1
         self.character = self.novo_char()
         return other.__radd__(string)
 
-    def __radd__(self, other) -> Union[str, Caracte]:
+    def __radd__(self, other) -> Union[str, Caracter]:
         condicoes = [self.cont > self.intervalo[0], self.coluna.ativo]
         string = self.character if all(condicoes) else ' '
         self.cont += 1
@@ -135,7 +135,7 @@ class RastroCaracte(Caracte):
         return char
 
 
-# class InstavelCaracte(Caracte):
+# class InstavelCaracter(Caracter):
 #     def __init__(self, *args):
 #         super().__init__(*args)
 #         self.velocidade = args[0].velocidade
@@ -164,16 +164,16 @@ class Coluna:
     def __init__(self, ativo=False, cor=3, rastro='', arq=''):
         colunas, linhas = get()
         self.intervalo = range(choice(range(4, linhas)))
-        self.cha = list(map(PulseCaracte, (self,) * 3))
+        self.cha = list(map(PulseCaracter, (self,) * 3))
         if rastro:
             self.rastro = rastro.center(colunas)
-            self.cha += list(map(Caracte, (self,) * (linhas - 6)))
+            self.cha += list(map(Caracter, (self,) * (linhas - 6)))
             shuffle(self.cha)
-            self.cha.insert((linhas - 6) // 2, RastroCaracte(self))
+            self.cha.insert((linhas - 6) // 2, RastroCaracter(self))
         else:
-            self.cha += list(map(Caracte, (self,) * (linhas - 5)))
+            self.cha += list(map(Caracter, (self,) * (linhas - 5)))
             shuffle(self.cha)
-        self.cha.append(UltimoCaracte(self))
+        self.cha.append(UltimoCaracter(self))
         for numero, character in enumerate(self.cha):
             character.cont = -numero
         self.ativo = ativo
@@ -190,16 +190,16 @@ class Coluna:
 #         self.velocidade = choice([0.5, 1.5])
 #         colunas, linhas = get()
 #         self.intervalo = range(choice(range(3, linhas)))
-#         self.cha = [PulseCaracte(self) for x in range(3)]
+#         self.cha = [PulseCaracter(self) for x in range(3)]
 #         if rastro:
 #             self.rastro = rastro.center(colunas)
-#             self.cha += [InstavelCaracte(self) for x in range(linhas - 6)]
+#             self.cha += [InstavelCaracter(self) for x in range(linhas - 6)]
 #             shuffle(self.cha)
-#             self.cha.insert((linhas - 6) // 2, RastroCaracte(self))
+#             self.cha.insert((linhas - 6) // 2, RastroCaracter(self))
 #         else:
-#             self.cha += [InstavelCaracte(self) for x in range(linhas - 5)]
+#             self.cha += [InstavelCaracter(self) for x in range(linhas - 5)]
 #             shuffle(self.cha)
-#         self.cha.append(UltimoCaracte(self))
+#         self.cha.append(UltimoCaracter(self))
 #         for numero, character in enumerate(self.cha):
 #             character.cont = -numero
 #         self.ativo = ativo
