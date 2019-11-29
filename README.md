@@ -30,4 +30,4 @@
 
 ##### Contribuidores:
 
-  - [b166erobot](//github.com/b166erobot)
+  - [henrique bastos](//github.com/henriquebastos)
