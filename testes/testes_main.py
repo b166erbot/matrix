@@ -1,14 +1,14 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 from unittest.mock import MagicMock, call, patch
 
-from matrix_.matrix import attr, main
+from src.matrix import attr, main
 
 
 class Testes(TestCase):
-    @patch('matrix_.matrix.print')
-    @patch('matrix_.matrix.sleep')
-    @patch('matrix_.matrix.Arquiteto')
-    @patch('matrix_.matrix.texto_efeito_pausa')
+    @patch('src.matrix.print')
+    @patch('src.matrix.sleep')
+    @patch('src.matrix.Arquiteto')
+    @patch('src.matrix.texto_efeito_pausa')
     def test_texto_efeito_pausa_chamado_com_argumentos(self, mock2, *_):
         main('')
         esperado = [
@@ -16,39 +16,39 @@ class Testes(TestCase):
         ]
         self.assertEqual(mock2.mock_calls, esperado)
 
-    @patch('matrix_.matrix.print')
-    @patch('matrix_.matrix.sleep')
-    @patch('matrix_.matrix.texto_efeito_pausa')
-    @patch('matrix_.matrix.Arquiteto')
+    @patch('src.matrix.print')
+    @patch('src.matrix.sleep')
+    @patch('src.matrix.texto_efeito_pausa')
+    @patch('src.matrix.Arquiteto')
     def test_arquiteto_chamado(self, mock, *_):
         main('')
         self.assertEqual(mock.call_count, 1)
 
-    @patch('matrix_.matrix.print')
-    @patch('matrix_.matrix.sleep')
-    @patch('matrix_.matrix.texto_efeito_pausa')
-    @patch('matrix_.matrix.Arquiteto.rain')
+    @patch('src.matrix.print')
+    @patch('src.matrix.sleep')
+    @patch('src.matrix.texto_efeito_pausa')
+    @patch('src.matrix.Arquiteto.rain')
     def test_rain_chamado(self, mock, *_):
         main('')
         mock.assert_any_call()
 
-    @patch('matrix_.matrix.print')
-    @patch('matrix_.matrix.sleep')
-    @patch('matrix_.matrix.texto_efeito_pausa')
-    @patch('matrix_.matrix.Arquiteto.rain')
-    def test_rain_nao_retornando_erro_de_KeyboardInterrupt(self, mock, *_):
+    @patch('src.matrix.print')
+    @patch('src.matrix.sleep')
+    @patch('src.matrix.texto_efeito_pausa')
+    @patch('src.matrix.Arquiteto._rodar')
+    def test_rodar_nao_retornando_erro_de_KeyboardInterrupt(self, mock, *_):
         mock.side_effect = [KeyboardInterrupt()]
         main('')
         self.assertEqual(mock.call_count, 1)
 
-    @patch('matrix_.matrix.print')
-    @patch('matrix_.matrix.sleep')
-    @patch('matrix_.matrix.texto_efeito_pausa')
-    @patch('matrix_.matrix.Arquiteto')
-    def test_rain_nao_retornando_erro_de_KeyboardInterrupt_2(self, mock, *_):
-        matrix = MagicMock()
-        mock.return_value = matrix
-        matrix.condicoes.side_effect = [True] * 3 + [False]
-        matrix.rain.side_effect = [KeyboardInterrupt()] * 3 + [0]
+    @patch('src.matrix.print')
+    @patch('src.matrix.sleep')
+    @patch('src.matrix.texto_efeito_pausa')
+    @patch('src.matrix.Arquiteto._rodar')
+    @patch('src.matrix.Arquiteto._condicoes', side_effect=[True] * 3 + [False])
+    def test_rodar_nao_retornando_erro_de_KeyboardInterrupt_2(
+        self, condicoes, rodar, *_
+    ):
+        rodar.side_effect = [KeyboardInterrupt()] * 3 + [0]
         main('')
-        self.assertEqual(matrix.condicoes.call_count, 4)
+        self.assertEqual(condicoes.call_count, 4)

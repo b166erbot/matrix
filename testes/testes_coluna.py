@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from matrix_.matrix import Caracter, Coluna, UltimoCaracter
+from src.matrix import Caracter, Coluna, UltimoCaracter
 
 
 class Testes(TestCase):
