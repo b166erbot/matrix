@@ -4,7 +4,12 @@ from unittest.mock import MagicMock, patch
 from src.matrix import Arquiteto, Coluna, get
 
 
+get = lambda: (80, 24)
+
+
+@patch('matrix_.matrix.get', new=get)
 class Testes(TestCase):
+    @patch('matrix_.matrix.get', new=get)
     def setUp(self):
         self.a = Arquiteto('')
 
