@@ -1,15 +1,20 @@
-from functools import reduce
-from itertools import dropwhile
-from os import get_terminal_size as get
-from random import choice, randint, shuffle
-from string import ascii_lowercase as string
+import curses
+from os import get_terminal_size as get_size
 from time import sleep
-from typing import Iterable, Union, NoReturn
-from contextlib import suppress
+from typing import NoReturn, Iterable, Tuple, List, Callable
+from random import randint, choice, shuffle
+from string import ascii_lowercase as string
+from itertools import cycle, chain
+from functools import reduce, namedtuple
+from operator import add
 
-from colored import attr, fg
+from .cores import cor
 
-# from cython import boundscheck, wraparound
+
+dados = namedtuple(
+    'dados', ['no_intervalo', 'desativar', 'maior_que_intervalo',
+    'local_exato_caracter', 'cor', 'ativa', 'tela']
+)
 
 
 def texto_efeito_pausa(texto: str) -> NoReturn:
@@ -21,272 +26,214 @@ def texto_efeito_pausa(texto: str) -> NoReturn:
 
 
 class Caracter:
-    """ Classe que representa um caracter qualquer. """
-    cores = [fg('white'), fg('grey_89'), fg('grey_66'), fg('green'),
-             fg('yellow'), fg('red')]
+    """Classe que representa um caracter qualquer."""
 
-    def __init__(self, coluna) -> NoReturn:
-        col, self.lin = get()
-        self.cont = 0
-        self.intervalo = coluna.intervalo
-        self.coluna = coluna
-        self.character = self.cores[3] + choice(string)
+    def __init__(self, dados):
+        self._caracter = choice(string)
+        self._dados = dados
 
-    def __add__(self, other):
-        condicoes = [self.cont in self.intervalo, self.coluna.ativo]
-        string = self.character if all(condicoes) else ' '
-        self.cont += 1
-        self.character = self._novo_char()
-        return other.__radd__(string)
+    def __repr__(self) -> str:
+        return f"{self._caracter}"
 
-    def __radd__(self, other):
-        condicoes = [self.cont in self.intervalo, self.coluna.ativo]
-        string = self.character if all(condicoes) else ' '
-        self.cont += 1
-        self.character = self._novo_char()
-        if isinstance(other, str):
-            char = other + string
+    def __str__(self) -> str:
+        return self._caracter
+
+    def exibir(self, numero_linha, numero_coluna):
+        caracter = self._obter_caracter()
+        cor = self._obter_cor()
+        if self._dados.ativa():
+            self._dados.tela.addch(numero_linha, numero_coluna, caracter, cor)
+
+    def _obter_caracter(self):
+        if self._dados.no_intervalo(self):
+            caracter = self._caracter
         else:
-            char = other.character + string
-        return char
+            caracter = ' '
+        return caracter
 
-    def __repr__(self):
-        return self.character
-
-    def __len__(self) -> int:
-        return len(self.character)
-
-    def _novo_char(self) -> str:
-        """ Método que gera um novo caracter. """
-        if self.cont in range(3):
-            char = self.cores[int(self.cont)] + choice(string)
+    def _obter_cor(self) -> int:
+        local = self._dados.local_exato_caracter(self)
+        if local in [1, 2]:
+            cor_ =  cor('white')
+        elif local == 3:
+            cor_ =  cor('gray')
         else:
-            char = self.cores[self.coluna.cor] + self.character[-1]
-        return char
+            cor_ =  self._dados.cor  # cor('green')
+        return cor_
 
 
 class UltimoCaracter(Caracter):
-    """ Classe que representa o ultimo caracter de uma coluna. """
-    def __add__(self, other) -> Caracter:
-        condicoes = [self.cont in self.intervalo, self.coluna.ativo]
-        string = self.character if all(condicoes) else ' '
-        if all((self.cont > self.intervalo[-1], self.coluna.ativo)):
-            self.coluna.ativo = False
-        self.cont += 1
-        self.character = self._novo_char()
-        return other.__radd__(string)
-
-    def __radd__(self, other) -> Union[str, Caracter]:
-        condicoes = [self.cont in self.intervalo, self.coluna.ativo]
-        string = self.character if all(condicoes) else ' '
-        if all((self.cont > self.intervalo[-1], self.coluna.ativo)):
-            self.coluna.ativo = False
-        self.cont += 1
-        self.character = self._novo_char()
-        if isinstance(other, str):
-            char = other + string
-        else:
-            char = other.character + string
-        return char
+    def exibir(self, numero_linha, numero_coluna):
+        super().exibir(numero_linha, numero_coluna)
+        if self._dados.maior_que_intervalo(self):
+            self._dados.desativar()
 
 
-class PulseCaracter(Caracter):
-    """
-    Classe que representa o caracter que se auto modifica de tempos em tempos.
-    """
-    def _novo_char(self) -> str:
-        """ Método que gera um novo caracter. """
-        char = self.character
-        if self.cont in range(3):
-            char = self.cores[int(self.cont)] + choice(string)
-        elif self.cont % 2 == 0:
-            char = self.cores[0] + choice(string)
-        return char
+class PulsarCaracter(Caracter):
+    """docstring for PulsarCaracter"""
 
+    def _obter_caracter(self):
+        caracter = choice(string) if self._dados.no_intervalo(self) else ' '
+        return caracter
 
-class RastroCaracter(Caracter):
-    """
-    Classe que representa o caracter que permanece quando a coluna termina.
-    """
-    def __add__(self, other) -> Caracter:
-        condicoes = [self.cont > self.intervalo[0], self.coluna.ativo]
-        string = self.character if all(condicoes) else ' '
-        self.cont += 1
-        self.character = self._novo_char()
-        return other.__radd__(string)
-
-    def __radd__(self, other) -> Union[str, Caracter]:
-        condicoes = [self.cont > self.intervalo[0], self.coluna.ativo]
-        string = self.character if all(condicoes) else ' '
-        self.cont += 1
-        self.character = self._novo_char()
-        if isinstance(other, str):
-            char = other + string
-        else:
-            char = other.character + string
-        return char
-
-    def _novo_char(self) -> str:
-        """ Método que gera um novo caracter. """
-        char = self.character
-        if self.cont in range(3):
-            char = self.cores[int(self.cont)] + choice(string)
-        elif self.cont > self.intervalo[-1]:
-            char = self.cores[0] + self.coluna.arq._obter_cha(self.coluna)
-        return char
-
-
-# class InstavelCaracter(Caracter):
-#     def __init__(self, *args):
-#         super().__init__(*args)
-#         self.velocidade = args[0].velocidade
-#
-#     def __add__(self, other):
-#         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
-#         string = self.character if all(condicoes) else ' '
-#         self.cont += self.velocidade
-#         self.character = self._novo_char()
-#         return other.__radd__(string)
-#
-#     def __radd__(self, other):
-#         condicoes = [self.cont in self.intervalo, self.coluna.ativo]
-#         string = self.character if all(condicoes) else ' '
-#         self.cont += self.velocidade
-#         self.character = self._novo_char()
-#         if isinstance(other, str):
-#             char = other + string
-#         else:
-#             char = other.character + string
-#         return char
+    def _obter_cor(self):
+        return cor('white')
 
 
 class Coluna:
-    """ Classe que alinha todos os caracteres em uma coluna. """
-    def __init__(self, ativo=False, cor=3, rastro='', arq=''):
-        colunas, linhas = get()
-        self.intervalo = range(choice(range(4, linhas)))
-        self.cha = list(map(PulseCaracter, (self,) * 3))
-        if rastro:
-            self.rastro = rastro.center(colunas)
-            self.cha += list(map(Caracter, (self,) * (linhas - 6)))
-            shuffle(self.cha)
-            self.cha.insert((linhas - 6) // 2, RastroCaracter(self))
-        else:
-            self.cha += list(map(Caracter, (self,) * (linhas - 5)))
-            shuffle(self.cha)
-        self.cha.append(UltimoCaracter(self))
-        for numero, character in enumerate(self.cha):
-            character.cont = -numero
-        self.ativo = ativo
-        self.cor = cor
-        self.arq = arq
+    """Classe que armazena todos os caracteres de uma coluna."""
 
-    def __iter__(self) -> Iterable:
-        """ Método que devolve todos os caracteres contidos na coluna. """
-        return iter(self.cha)
+    def __init__(self, tamanho: int, tela) -> NoReturn:
+        self._tamanho = tamanho  # necessário para reiniciar.
+        self._tela = tela  # necessário para reiniciar.
+        self._intervalo = [- randint(7, tamanho), -2]
+        self._cor = cor('green')
+        dados_ = dados(
+            self._no_intervalo, self.desativar, self.maior_que_intervalo,
+            self.local_exato_caracter, self._cor, self.ativa, tela
+        )
+        # tamanho -1 no mínimo obrigatório abaixo. motivo: FixBug
+        caracteres = list(map(
+            lambda x: Caracter(dados_), range(tamanho - int(tamanho / 4))
+        ))
+        caracteres = caracteres + list(map(
+            lambda x: PulsarCaracter(dados_), range(int(tamanho / 5))
+        ))  # tamanho / 5
+        shuffle(caracteres)
+        self._caracteres = list(chain(caracteres, [UltimoCaracter(dados_)]))
+        self._ativa = False
 
+    def __repr__(self) -> str:
+        return f"{self._caracteres[:5]}..."
 
-# class ColunaInstavel(Coluna):
-#     def __init__(self, ativo=False, cor=3, rastro='', arq=''):
-#         self.velocidade = choice([0.5, 1.5])
-#         colunas, linhas = get()
-#         self.intervalo = range(choice(range(3, linhas)))
-#         self.cha = [PulseCaracter(self) for x in range(3)]
-#         if rastro:
-#             self.rastro = rastro.center(colunas)
-#             self.cha += [InstavelCaracter(self) for x in range(linhas - 6)]
-#             shuffle(self.cha)
-#             self.cha.insert((linhas - 6) // 2, RastroCaracter(self))
-#         else:
-#             self.cha += [InstavelCaracter(self) for x in range(linhas - 5)]
-#             shuffle(self.cha)
-#         self.cha.append(UltimoCaracter(self))
-#         for numero, character in enumerate(self.cha):
-#             character.cont = -numero
-#         self.ativo = ativo
-#         self.cor = cor
-#         self.arq = arq
+    def __iter__(self) -> Iterable[Caracter]:
+        return iter(self._caracteres)
+
+    def andar(self) -> NoReturn:
+        self._intervalo = list(map(add, self._intervalo, cycle([1])))
+
+    def local_exato_caracter(self, caracter):
+        local = self._caracteres.index(caracter)
+        return self._intervalo[1] - local
+
+    def maior_que_intervalo(self, caracter):
+        local = self._caracteres.index(caracter)
+        return self._intervalo[0] > local
+
+    def _no_intervalo(self, caracter):
+        local = self._caracteres.index(caracter)
+        return True if local in range(*self._intervalo) else False
+
+    def desativar(self):
+        self.__init__(self._tamanho, self._tela)
+        self._ativa = False
+
+    def definir_status(self, status: bool):
+        self._ativa = status
+
+    def ativa(self):
+        return self._ativa
+
+    def exibir(self, numero_coluna):
+        for numero_linha, caracter in enumerate(self):
+            caracter.exibir(numero_linha, numero_coluna)
+
+    def definir_cor(self, cor):
+        self._cor = cor
 
 
 class Arquiteto:
-    """ O arquiteto é o construtor da matrix. """
-    def __init__(self, rastro: str) -> NoReturn:
-        self.c, _ = get()
-        self.colunas = [Coluna(rastro=rastro, arq=self) for a in range(self.c)]
-        self._rastro = True if rastro else False
-        if rastro:
-            rastro = enumerate(rastro[:self.c].center(self.c))
-            rastro = list(dropwhile(lambda x: x[1] == ' ', rastro))
-            rastro = list(dropwhile(lambda x: x[1] == ' ', rastro[::-1]))
-            rastro = list(map(lambda x: x[0], rastro[::-1]))
-            self._marcar_rastro(rastro)
+    """Classe que gerencia todas as colunas na tela."""
+
+    def __init__(self, tela) -> NoReturn:
+        self._tela = tela
+        lin, col = tela.getmaxyx()
+        self._lin = lin
+        self._colunas = list(map(
+            lambda linhas: Coluna(linhas, tela), [lin] * (col - 2)
+        ))
+        self.continue_ = True
+
+    def _exibir(self) -> NoReturn:
+        """Método que exibe todos os caracteres das colunas."""
+        for numero_coluna, coluna in enumerate(self._colunas):
+            coluna.exibir(numero_coluna)
+
+    def _andar(self):
+        colunas = filter(lambda x: x.ativa(), self._colunas)
+        for coluna in colunas:
+            coluna.andar()
+
+    def _ativar_colunas(self):
+        tamanho = curses.getsyx()[1]
+        colunas_desativadas = list(filter(
+            lambda x: not x.ativa(), self._colunas
+        ))
+        if len(colunas_desativadas) > tamanho/3 and self.continue_:
+            choice(colunas_desativadas).definir_status(True)
+
+    def _desativar_todas_colunas(self):
+        for coluna in self._colunas:
+            coluna.desativar()
+
+    def _sortear_coloridas(self):
+        if choice(range(20)) == 1:
+            desativadas = list(filter(lambda x: not x.ativa(), self._colunas))
+            cor_ = cor(choice(['yellow', 'red']))
+            temp = choice(desativadas)
+            temp.definir_cor(cor_)
+
+    def conectado(self, tamanho_anterior) -> bool:
+        igual = list(get_size()) == tamanho_anterior
+        ativas = len(list(filter(lambda x: x.ativa(), self._colunas)))
+        return igual and (ativas > 0)
+        curses.endwin()
+        import pdb; pdb.set_trace()
 
     def rain(self) -> NoReturn:
-        with suppress(KeyboardInterrupt, EOFError):
-            self._rodar()
-        while self._condicoes(*get()):
-            with suppress(KeyboardInterrupt, EOFError):
-                self._rodar(True)
-
-    def _rodar(self, stop=False) -> NoReturn:
-        """ Método que imprime o efeito matrix na tela. """
-        colunas, linhas = get()
-        if not self._rastro:
-            choice(self.colunas).ativo = True  # precisa iniciar a primeira
-        while self._condicoes(colunas, linhas):  # por frames
-            if not stop:
-                self._sortear()
-            gerador = zip(*self.colunas)
-            gerador = (reduce(lambda x, y: x + y, z) for z in gerador)
-            print(*gerador, sep='\n')
-            sleep(0.04)  # velocidade dos frames
-
-    def _sortear(self) -> NoReturn:
-        """ Método que sorteia uma nova coluna para ser ativada. """
-        desativadas = [a for a in self.colunas if not a.ativo]
-        if self.c - len(desativadas) < self.c//3:
-            if not choice(range(20)) == 1:
-                choice(desativadas).__init__(True,)
-            else:
-                choice(desativadas).__init__(True, choice((4, 5)))
-
-    def _marcar_rastro(self, rastro: list) -> NoReturn:
-        """ Método que ativa todas as colunas que contém o rastro. """
-        for x in rastro:
-            self.colunas[x].ativo = True
-            for y in self.colunas[x].cha:
-                y.intervalo = range(randint(4, 7))
-
-    def _condicoes(self, colunas: int, linhas: int) -> bool:
-        """ Método que verifica se o loop no método rain deve continuar. """
-        tupla = (list(get()) == [colunas, linhas],
-                 [x for x in self.colunas if x.ativo])
-        return all(tupla)
-
-    def _obter_cha(self, coluna: Coluna) -> str:
-        """
-        Método que retorna o caracter rastro na posição do cha na coluna.
-        """
-        return coluna.rastro[self.colunas.index(coluna)]
+        """Método que roda todo o efeito."""
+        tamanho_anterior = list(get_size())
+        self._ativar_colunas()  # é obrigatório que uma coluna esteja ativa.
+        while self.conectado(tamanho_anterior):
+            self._andar()
+            self._ativar_colunas()
+            self._sortear_coloridas()
+            self._exibir()
+            self._tela.refresh()
+            sleep(0.05)  # 0.05
+        self._desativar_todas_colunas()
+        self._tela.erase()
+        self._tela.refresh()
 
 
-def main(rastro: str) -> NoReturn:
-    """ Função principal que roda o código. """
+def configurar(tela) -> NoReturn:
+    """Função que faz as configurações iniciais."""
+    curses.curs_set(0)  # oculta o pipe
+    curses.noecho()
+    curses.start_color()
+    curses.use_default_colors()
+    for x, y in enumerate(range(10), 1):
+        curses.init_pair(x, y, -1)
+
+
+def main() -> NoReturn:
+    """Função principal."""
+
     texto_efeito_pausa('Conectando a matrix...')
     sleep(1)
-    matrix = Arquiteto(rastro)
-    matrix.rain()
-    print('\n' * get()[1])
-    texto_efeito_pausa(attr(0) + '\nDesconectado.')
+    try:
+        curses.initscr()
+        while True:
+            colunas, linhas = get_size()
+            tela = curses.newwin(linhas + 1, colunas + 1)  # correção de bug
+            configurar(tela)
+            matrix = Arquiteto(tela)
+            matrix.rain()
+    except KeyboardInterrupt:
+        matrix.continue_ = False
+        matrix.rain()
+    finally:
+        curses.endwin()
+    texto_efeito_pausa('\nDesconectado.')
 
-
-# TODO: deixar rastro na tela como palavras escrito algo, exemplo: matrix
-# TODO: fazer com que as colunas se iniciem em lugares aleatórios na tela.
-# TODO: fazer com que algumas fileiras fiquem mais rápidas e outras mais lentas
-# TODO: tentar trazer os caracteres katakanas novamente? (god mode programming)
-
-# todo 2
-# todos os characters da coluna estão imprimindo, para que não ocorra, adicione
-# um range de inicio e fim e verifique se o index do cha está nesse range no
-# __(r)add__. não se esqueça de colocar o tamanho máximo (0, linhas) para o
-# self.tamanho caso faça o segundo TODO.
+# addstr, addch -> linhas(y), colunas(x), string, cor

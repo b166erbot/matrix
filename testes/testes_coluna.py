@@ -1,33 +1,82 @@
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
-from src.matrix import Caracter, Coluna, UltimoCaracter
+from src.new_matrix import Coluna, Caracter
 
 
-class Testes(TestCase):
+@patch('src.new_matrix.cor')
+class TestColunaExibivel(TestCase):
     def setUp(self):
-        self.c = Coluna(True, 3)
+        self.tela = MagicMock()
+        self.tela.getmaxyx.return_value = (80, 24)
+        self.coluna = Coluna(self.tela, 24)
 
-    def test_coluna_ativada(self):
-        self.assertTrue(self.c.ativo)
+    @patch('src.new_matrix.curses')
+    def test_exibir_exibindo_caso_coluna_ativa(self, *_):
+        self.coluna.ativa = True
+        for _ in range(5):
+            self.coluna.exibir()
+        self.tela.addstr.assert_called()
 
-    def test_ativo_caracteres_retornando_true_caso_coluna_ativada(self):
-        self.assertTrue(all(x.coluna.ativo for x in self.c))
+    def test_exibir_nao_exibindo_caso_coluna_nao_ativa(self, *_):
+        self.coluna.exibir()
+        self.tela.addstr.assert_not_called()
 
-    def test_coluna_desativada(self):
-        self.c = Coluna(False, 3)
-        self.assertFalse(self.c.ativo)
 
-    def test_ativo_caracteres_retornando_false_caso_coluna_desativada(self):
-        self.c = Coluna(False, 3)
-        self.assertFalse(any(x.coluna.ativo for x in self.c))
+class TestColuna(TestCase):
+    def setUp(self):
+        self.tela = MagicMock()
+        self.tela.getmaxyx.return_value = (80, 24)
+        self.coluna = Coluna(self.tela, 24)
+        self.caracter = Caracter(self.tela, MagicMock(return_value = True))
 
-    def test_coluna_iteravel(self):
-        gerador = (isinstance(a, (Caracter, UltimoCaracter)) for a in self.c)
-        self.assertTrue(all(gerador))
+    # def test_exibivel_retornando_True_caso_caracter_estiver_na_distancia(self):
+    #     self.coluna._distancia = range(50)
+    #     resultado = self.coluna.exibivel(self.caracter)
+    #     self.assertTrue(resultado)
 
-    def test_verificar_se_todos_os_characteres_estao_no_devido_lugar(self):
-        gerador = (isinstance(a, Caracter) for a in self.c.cha[:-1])
-        self.assertTrue(all(gerador))
+    # def test_exibivel_retornando_False_caso_caracter_nao_estiver_na_distancia(
+    #     self
+    # ):
+    #     self.coluna._distancia = range(-50, -1)
+    #     resultado = self.coluna.exibivel(self.caracter)
+    #     self.assertFalse(resultado)
 
-    def test_verificar_se_o_ultimo_character_esta_no_devido_lugar(self):
-        self.assertIsInstance(self.c.cha[-1], UltimoCaracter)
+    def test_desativar_coluna_desativando_a_coluna(self):
+        self.coluna.ativa = True
+        self.coluna.desativar_coluna()
+        self.assertFalse(self.coluna.ativa)
+
+    def test_reiniciar_coluna_reiniciando_a_coluna(self):
+        self.coluna.__init__ = MagicMock()
+        self.coluna._reiniciar_coluna()
+        self.coluna.__init__.assert_called()
+
+    # def test_andar_definindo_as_posicoes_caso_caminho_contenha_itens(self):
+    #     mockado = MagicMock()
+    #     caracter = self.coluna._caracteres[-1]
+    #     caracter.definir_posicao = mockado
+    #     self.coluna.andar()
+    #     caracter.definir_posicao.assert_called()
+
+    # def test_andar_nao_definindo_as_posicoes_caso_caminho_vazio(self):
+    #     mockado = MagicMock()
+    #     caracter = self.coluna._caracteres[-1]
+    #     self.coluna._caminho = iter(range(0))  # iterável vazio
+    #     caracter.definir_posicao = mockado
+    #     self.coluna.andar()
+    #     caracter.definir_posicao.assert_not_called()
+
+    # def test_andar_definindo_a_posicao_do_primeiro_caracter(self):
+    #     self.coluna.andar()
+    #     self.assertNotEqual((0, 0), self.coluna._caracteres[0])
+
+    # def test_andar_trocando_a_posicao_caso_seja_chamado_2_vezes(self):
+    #     self.coluna.andar()
+    #     self.coluna.andar()
+    #     self.assertNotEqual((0, 0), self.coluna._caracteres[0].posicao)
+
+    # def test_andar_trocando_a_posicao_do_segundo_caracter(self):
+    #     self.coluna.andar()
+    #     self.coluna.andar()
+    #     self.assertNotEqual((0, 0), self.coluna._caracteres[1].posicao)

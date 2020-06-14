@@ -1,6 +1,8 @@
-from sys import argv
+from contextlib import suppress
 
 from src.matrix import main
 
+
 if __name__ == '__main__':
-    main(' '.join(argv[1:]))
+    with suppress((KeyboardInterrupt, EOFError)):
+        main()

@@ -13,7 +13,7 @@
 
   ![vídeo](https://raw.githubusercontent.com/b166erobot/matrix/teste/preview/preview.gif)
 
-##### Usagem:
+##### Uso:
 
   - python3 matrix.py
   - python3 matrix.py `escreva alguma frase aqui`
