@@ -55,7 +55,7 @@ class Caracter:
 
     def _obter_cor(self) -> int:
         """Método que retorna a cor."""
-        local = self._dados.local_exato_caracter(self)
+        local = int(self._dados.local_exato_caracter(self))
         if local in [1, 2]:
             cor_ =  cor('white')
         elif local == 3:
@@ -109,6 +109,7 @@ class Coluna:
         shuffle(caracteres)
         self._caracteres = list(chain(caracteres, [UltimoCaracter(dados_)]))
         self._ativa = False
+        self._pulo = 1
 
     def __repr__(self) -> str:
         return f"{self._caracteres[:5]}..."
@@ -118,7 +119,8 @@ class Coluna:
 
     def andar(self) -> NoReturn:
         """Método que faz a coluna andar."""
-        self._intervalo = list(map(add, self._intervalo, cycle([1])))
+        self._intervalo[0] += self._pulo
+        self._intervalo[1] += self._pulo
 
     def local_exato_caracter(self, caracter: Caracter) -> int:
         """Método que retorna o local do caracter perante o tamano da coluna."""
@@ -133,7 +135,8 @@ class Coluna:
     def _no_intervalo(self, caracter: Caracter) -> bool:
         """Método que verifica se o caracter está no intervalo da coluna."""
         local = self._caracteres.index(caracter)
-        return True if local in range(*self._intervalo) else False
+        distancia = map(int, self._intervalo)
+        return True if local in range(*distancia) else False
 
     def desativar(self) -> NoReturn:
         """Método que desativa a coluna."""
@@ -161,6 +164,9 @@ class Coluna:
         """Método que retorna a cor da coluna."""
         return self._cor
 
+    def definir_instabilidade(self) -> NoReturn:
+        self._pulo = choice([0.5, 2])
+
 
 class Arquiteto:
     """Classe que gerencia todas as colunas na tela."""
@@ -170,7 +176,7 @@ class Arquiteto:
         lin, col = tela.getmaxyx()
         self._lin = lin
         self._colunas = list(map(
-            lambda linhas: Coluna(linhas, tela), [lin] * (col - 2)
+            lambda linhas: Coluna(linhas, tela), [lin] * (col - 1)
         ))
         self.continue_ = True
 
@@ -204,10 +210,14 @@ class Arquiteto:
         if choice(range(20)) == 1:  # 20
             desativadas = list(filter(lambda x: not x.ativa(), self._colunas))
             cor_ = cor(choice(['orange', 'red']))
-            temp = choice(desativadas)
-            temp.definir_cor(cor_)
+            choice(desativadas).definir_cor(cor_)
 
-    def conectado(self, tamanho_anterior: int) -> bool:
+    def _sortear_instaveis(self) -> NoReturn:
+        if choice(range(4)) == 1: # 5
+            desativadas = list(filter(lambda x: not x.ativa(), self._colunas))
+            choice(desativadas).definir_instabilidade()
+
+    def _conectado(self, tamanho_anterior: int) -> bool:
         """Método que verifica se o programa ainda pode continuar rodando."""
         igual = list(get_size()) == tamanho_anterior
         ativas = len(list(filter(lambda x: x.ativa(), self._colunas)))
@@ -217,13 +227,14 @@ class Arquiteto:
         """Método que roda todo o efeito."""
         tamanho_anterior = list(get_size())
         self._ativar_colunas()  # é obrigatório que uma coluna esteja ativa.
-        while self.conectado(tamanho_anterior):
+        while self._conectado(tamanho_anterior):
             self._andar()
             self._ativar_colunas()
             self._sortear_coloridas()
+            self._sortear_instaveis()
             self._exibir()
             self._tela.refresh()
-            sleep(0.05)  # 0.05
+            sleep(0.04)  # 0.05
         self._desativar_todas_colunas()
         self._tela.erase()
         self._tela.refresh()
