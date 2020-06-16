@@ -120,44 +120,44 @@ class Coluna:
         """Método que faz a coluna andar."""
         self._intervalo = list(map(add, self._intervalo, cycle([1])))
 
-    def local_exato_caracter(self, caracter):
+    def local_exato_caracter(self, caracter: Caracter) -> int:
         """Método que retorna o local do caracter perante o tamano da coluna."""
         local = self._caracteres.index(caracter)
         return self._intervalo[1] - local
 
-    def maior_que_intervalo(self, caracter):
+    def maior_que_intervalo(self, caracter: Caracter) -> bool:
         """Método que verifica se o local do caracter é maior que a coluna."""
         local = self._caracteres.index(caracter)
         return self._intervalo[0] > local
 
-    def _no_intervalo(self, caracter):
+    def _no_intervalo(self, caracter: Caracter) -> bool:
         """Método que verifica se o caracter está no intervalo da coluna."""
         local = self._caracteres.index(caracter)
         return True if local in range(*self._intervalo) else False
 
-    def desativar(self):
+    def desativar(self) -> NoReturn:
         """Método que desativa a coluna."""
         self.__init__(self._tamanho, self._tela)
         self._ativa = False
 
-    def definir_status(self, status: bool):
+    def definir_status(self, status: bool) -> NoReturn:
         """Método que define o status da coluna."""
         self._ativa = status
 
-    def ativa(self):
+    def ativa(self) -> bool:
         """Método que verifica se a coluna está ativa."""
         return self._ativa
 
-    def exibir(self, numero_coluna):
+    def exibir(self, numero_coluna: int) -> NoReturn:
         """Método que posiciona todos os caracteres na tela."""
         for numero_linha, caracter in enumerate(self):
             caracter.exibir(numero_linha, numero_coluna)
 
-    def definir_cor(self, cor):
+    def definir_cor(self, cor) -> NoReturn:
         """Método que define a cor da coluna."""
         self._cor = cor
 
-    def cor(self):
+    def cor(self) -> int:
         """Método que retorna a cor da coluna."""
         return self._cor
 
@@ -179,13 +179,13 @@ class Arquiteto:
         for numero_coluna, coluna in enumerate(self._colunas):
             coluna.exibir(numero_coluna)
 
-    def _andar(self):
+    def _andar(self) -> NoReturn:
         """Método que faz todas as colunas andarem."""
         colunas = filter(lambda x: x.ativa(), self._colunas)
         for coluna in colunas:
             coluna.andar()
 
-    def _ativar_colunas(self):
+    def _ativar_colunas(self) -> NoReturn:
         """Método que ativa as colunas desativadas."""
         tamanho = curses.getsyx()[1]
         colunas_desativadas = list(filter(
@@ -194,12 +194,12 @@ class Arquiteto:
         if len(colunas_desativadas) > tamanho/3 and self.continue_:
             choice(colunas_desativadas).definir_status(True)
 
-    def _desativar_todas_colunas(self):
+    def _desativar_todas_colunas(self) -> NoReturn:
         """Método que desativa todas as colunas."""
         for coluna in self._colunas:
             coluna.desativar()
 
-    def _sortear_coloridas(self):
+    def _sortear_coloridas(self) -> NoReturn:
         """Método que seleciona e define a cor de uma coluna."""
         if choice(range(20)) == 1:  # 20
             desativadas = list(filter(lambda x: not x.ativa(), self._colunas))
@@ -207,7 +207,7 @@ class Arquiteto:
             temp = choice(desativadas)
             temp.definir_cor(cor_)
 
-    def conectado(self, tamanho_anterior) -> bool:
+    def conectado(self, tamanho_anterior: int) -> bool:
         """Método que verifica se o programa ainda pode continuar rodando."""
         igual = list(get_size()) == tamanho_anterior
         ativas = len(list(filter(lambda x: x.ativa(), self._colunas)))
