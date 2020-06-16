@@ -11,7 +11,7 @@
 
 ##### Pré-visualização:
 
-  ![vídeo](https://raw.githubusercontent.com/b166erobot/matrix/teste/preview/preview.gif)
+  ![vídeo](https://raw.githubusercontent.com/b166erobot/matrix/2.0/preview/preview.gif)
 
 ##### Uso:
 
