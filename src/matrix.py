@@ -55,13 +55,12 @@ class Caracter:
 
     def _obter_cor(self) -> int:
         """Método que retorna a cor."""
+        cores = {1: cor('white'), 2: cor('light_white'), 3: cor('gray')}
         local = int(self._dados.local_exato_caracter(self))
-        if local in [1, 2]:
-            cor_ =  cor('white')
-        elif local == 3:
-            cor_ =  cor('gray')
+        if local in cores:
+            cor_ = cores[local]
         else:
-            cor_ =  self._dados.cor()
+            cor_ = self._dados.cor()
         return cor_
 
 
@@ -207,9 +206,9 @@ class Arquiteto:
 
     def _sortear_coloridas(self) -> NoReturn:
         """Método que seleciona e define a cor de uma coluna."""
-        if choice(range(20)) == 1:  # 20
+        if choice(range(30)) == 1:  # 20
             desativadas = list(filter(lambda x: not x.ativa(), self._colunas))
-            cor_ = cor(choice(['orange', 'red']))
+            cor_ = cor(choice(['yellow', 'red']))
             choice(desativadas).definir_cor(cor_)
 
     def _sortear_instaveis(self) -> NoReturn:

@@ -4,11 +4,6 @@
 
   - Efeito matrix rain feito por mim somente por diversão =].
 
-##### Dependências:
-
-- colored
-- Para instalar execute: pip3 install -r requirements.txt
-
 ##### Pré-visualização:
 
   ![vídeo](https://raw.githubusercontent.com/b166erobot/matrix/2.0/preview/preview.gif)
@@ -16,7 +11,7 @@
 ##### Uso:
 
   - python3 matrix.py
-  - python3 matrix.py `escreva alguma frase aqui`
+  <!-- - python3 matrix.py `escreva alguma frase aqui` -->
   - Para cancelar o efeito pressione ctrl + c e o efeito será encerrado.
 
 ##### Todo:
