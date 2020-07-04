@@ -1,12 +1,12 @@
 import curses
 from os import get_terminal_size as get_size
 from time import sleep
-from typing import NoReturn, Iterable, Tuple, List, Callable
+from typing import NoReturn, Iterable
 from random import randint, choice, shuffle
 from string import ascii_lowercase as string
-from itertools import cycle, chain
-from functools import reduce, namedtuple
-from operator import add
+from itertools import chain
+from functools import namedtuple
+# from sys import argv
 
 from .cores import cor
 
@@ -270,3 +270,4 @@ def main() -> NoReturn:
     texto_efeito_pausa('\nDesconectado.')
 
 # addstr, addch -> linhas(y), colunas(x), string, cor
+# TODO: linha quase apagada
