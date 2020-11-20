@@ -6,7 +6,6 @@ from random import randint, choice, shuffle
 from string import ascii_lowercase as string
 from itertools import chain
 from functools import namedtuple
-# from sys import argv
 
 from .cores import cor
 
